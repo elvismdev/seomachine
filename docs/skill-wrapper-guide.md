@@ -81,6 +81,15 @@ The 4 levels up (`../../../../`) goes from:
 
 If Module A imports Module B, both must be symlinked into the same `scripts/` directory. Python resolves imports from the script's directory first.
 
+**Known inter-module import dependencies:**
+
+| Module | Required Dependencies |
+|--------|----------------------|
+| `content_scorer.py` | `readability_scorer.py`, `seo_quality_rater.py` |
+| `data_aggregator.py` | `google_analytics.py`, `google_search_console.py`, `dataforseo.py` |
+
+Any skill that symlinks a module in the left column MUST also symlink all modules in the right column. Failing to do so causes `ModuleNotFoundError` at runtime.
+
 ### 4. CLI Convention
 
 All modules should accept:
