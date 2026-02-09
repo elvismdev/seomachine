@@ -4,97 +4,147 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SEO Machine is an open-source Claude Code workspace for creating SEO-optimized blog content. It combines custom commands, specialized agents, and Python-based analytics to research, write, optimize, and publish articles for any business.
+SEO Machine is an open-source Claude Code workspace for creating SEO-optimized blog content. It combines custom commands, specialized agents, Python-based analytics, and marketing skills to research, write, optimize, and publish articles for any business.
 
 ## Setup
 
 ```bash
 pip install -r data_sources/requirements.txt
+cp .env.example data_sources/config/.env  # then fill in credentials
+cp config/competitors.example.json config/competitors.json  # customize for your business
 ```
 
-API credentials are configured in `data_sources/config/.env` (GA4, GSC, DataForSEO, WordPress). GA4 service account credentials go in `credentials/ga4-credentials.json`.
+API credentials in `data_sources/config/.env`: GA4, GSC, DataForSEO, WordPress. GA4 service account JSON goes in `credentials/ga4-credentials.json`. WordPress needs `WORDPRESS_URL`, `WORDPRESS_USERNAME`, `WORDPRESS_APP_PASSWORD`. Test connectivity with `python3 test_dataforseo.py`.
 
 ## Commands
 
 All commands are defined in `.claude/commands/` and invoked as slash commands:
 
+### Core Content Workflow
 - `/research [topic]` - Keyword/competitor research, generates brief in `research/`
-- `/write [topic]` - Create full article in `drafts/`, auto-triggers optimization agents
+- `/write [topic]` - Create full article in `drafts/`, auto-runs scrubber + quality loop + 5 optimization agents
 - `/rewrite [topic]` - Update existing content, saves to `rewrites/`
 - `/optimize [file]` - Final SEO polish pass
 - `/analyze-existing [URL or file]` - Content health audit
-- `/performance-review` - Analytics-driven content priorities
-- `/publish-draft [file]` - Publish to WordPress via REST API
+- `/scrub [file]` - Remove AI watermarks (Unicode, em-dashes); idempotent and safe to re-run
+- `/publish-draft [file] [--type post|page|custom]` - Publish to WordPress via REST API as draft
 - `/article [topic]` - Simplified article creation
+
+### Analytics & Strategy
+- `/performance-review` - Analytics-driven content priorities
 - `/priorities` - Content prioritization matrix
-- `/research-serp`, `/research-gaps`, `/research-trending`, `/research-performance`, `/research-topics` - Specialized research commands
-- `/landing-write`, `/landing-audit`, `/landing-research`, `/landing-publish`, `/landing-competitor` - Landing page commands
+
+### Research
+- `/research-serp [keyword]`, `/research-gaps`, `/research-trending`, `/research-performance`, `/research-topics`
+
+### Landing Pages
+- `/landing-write [topic]`, `/landing-audit [file]`, `/landing-research [topic]`, `/landing-publish [file]`, `/landing-competitor [URL]`
 
 ## Architecture
 
 ### Command-Agent Model
 
-**Commands** (`.claude/commands/`) orchestrate workflows. **Agents** (`.claude/agents/`) are specialized roles invoked by commands. After `/write`, these agents auto-run: SEO Optimizer, Meta Creator, Internal Linker, Keyword Mapper.
+**Commands** (`.claude/commands/`) orchestrate workflows. **Agents** (`.claude/agents/`) are specialized roles invoked by commands.
 
-Key agents: `content-analyzer.md`, `seo-optimizer.md`, `meta-creator.md`, `internal-linker.md`, `keyword-mapper.md`, `editor.md`, `headline-generator.md`, `cro-analyst.md`, `performance.md`.
+After `/write`, this pipeline runs automatically:
+1. Save draft to `drafts/[topic-slug]-[date].md`
+2. `/scrub` removes AI watermarks
+3. `content_scorer.py` evaluates quality (composite score, threshold = 70)
+4. If score < 70: auto-revise top fixes and re-score (max 2 iterations)
+5. If still < 70 after 2 iterations: route to `review-required/` with `_REVIEW_NOTES.md`
+6. If score >= 70: run 5 optimization agents (Content Analyzer, SEO Optimizer, Meta Creator, Internal Linker, Keyword Mapper)
+
+Agents: `content-analyzer.md`, `seo-optimizer.md`, `meta-creator.md`, `internal-linker.md`, `keyword-mapper.md`, `editor.md`, `headline-generator.md`, `cro-analyst.md`, `landing-page-optimizer.md`, `performance.md`.
+
+### Content Quality Scoring
+
+`content_scorer.py` evaluates 5 weighted dimensions:
+- Humanity/Voice (30%) - No AI phrases, contractions, personality
+- Specificity (25%) - Concrete examples, numbers, names
+- Structure Balance (20%) - 40-70% prose ratio (not all lists)
+- SEO Compliance (15%) - Keywords, meta, structure
+- Readability (10%) - Flesch 60-70, grade 8-10
 
 ### Python Analysis Pipeline
 
-Located in `data_sources/modules/`. The Content Analyzer chains:
-1. `search_intent_analyzer.py` - Query intent classification
-2. `keyword_analyzer.py` - Density, distribution, stuffing detection
+Located in `data_sources/modules/`. The Content Analyzer agent chains these modules:
+1. `search_intent_analyzer.py` - Query intent classification (informational/navigational/transactional/commercial)
+2. `keyword_analyzer.py` - Density, distribution, stuffing detection, TF-IDF clustering, LSI keywords
 3. `content_length_comparator.py` - Benchmarks against top 10 SERP results
-4. `readability_scorer.py` - Flesch Reading Ease, grade level
-5. `seo_quality_rater.py` - Comprehensive 0-100 SEO score
+4. `readability_scorer.py` - Flesch Reading Ease, grade level, passive voice, sentence complexity
+5. `seo_quality_rater.py` - Comprehensive 0-100 SEO score with category breakdowns
+
+Additional modules: `content_scorer.py` (quality gate), `content_scrubber.py` (AI watermark removal), `opportunity_scorer.py` (8-factor prioritization), `engagement_analyzer.py`, `competitor_gap_analyzer.py`, `article_planner.py`, `section_writer.py`, `social_research_aggregator.py`.
+
+### CRO Analysis Modules
+
+Six modules for landing page conversion optimization:
+- `above_fold_analyzer.py`, `cta_analyzer.py`, `trust_signal_analyzer.py`
+- `landing_page_scorer.py` (0-100 with category breakdowns), `landing_performance.py` (GA4/GSC), `cro_checker.py`
 
 ### Data Integrations
 
-- `google_analytics.py` - GA4 traffic/engagement data
-- `google_search_console.py` - Rankings and impressions
+- `google_analytics.py` - GA4 traffic/engagement
+- `google_search_console.py` - Rankings, impressions, CTR
 - `dataforseo.py` - SERP positions, keyword metrics
-- `data_aggregator.py` - Combines all sources into unified analytics
-- `wordpress_publisher.py` - Publishes to WordPress with Yoast SEO metadata
+- `data_aggregator.py` - Combines GA4 + GSC + DataForSEO (gracefully handles missing credentials)
+- `wordpress_publisher.py` - REST API publishing with Yoast SEO metadata
 
 ### Opportunity Scoring
 
-`opportunity_scorer.py` uses 8 weighted factors: Volume (25%), Position (20%), Intent (20%), Competition (15%), Cluster (10%), CTR (5%), Freshness (5%), Trend (5%).
+`opportunity_scorer.py` uses 8 weighted factors: Volume (25%), Position (20%), Intent (20%), Competition (15%), Cluster (10%), CTR (5%), Freshness (5%), Trend (5%). Priority levels: CRITICAL, HIGH, MEDIUM, LOW, SKIP.
+
+### Marketing Skills Library
+
+26 marketing skills in `.claude/skills/`, each with a `SKILL.md` and optional `references/` directory. Categories: Copywriting, CRO (page/form/signup/onboarding/popup/paywall), Strategy, Channels (email/social/paid-ads), SEO, Analytics. Invoked as slash commands (e.g., `/copywriting`, `/page-cro`, `/seo-audit`).
 
 ## Running Python Scripts
 
+All scripts run from repo root. SEO analysis scripts load from `config/competitors.json`.
+
 ```bash
-# Research & analysis scripts (run from repo root)
-python3 research_quick_wins.py
-python3 research_competitor_gaps.py
-python3 research_performance_matrix.py
+python3 research_quick_wins.py          # Quick win opportunities
+python3 research_competitor_gaps.py     # Competitor content gaps
+python3 research_performance_matrix.py  # Performance-based priorities
 python3 research_priorities_comprehensive.py
 python3 research_serp_analysis.py
 python3 research_topic_clusters.py
 python3 research_trending.py
-python3 seo_baseline_analysis.py
+python3 seo_baseline_analysis.py        # Requires config/competitors.json
 python3 seo_bofu_rankings.py
 python3 seo_competitor_analysis.py
-
-# Test API connectivity
-python3 test_dataforseo.py
 ```
 
 ## Content Pipeline
 
-`topics/` (ideas) → `research/` (briefs) → `drafts/` (articles) → `review-required/` (pending review) → `published/` (final)
+`topics/` (ideas) → `research/` (briefs) → `drafts/` (articles) → `review-required/` (failed quality gate) → `published/` (final)
 
 Rewrites go to `rewrites/`. Landing pages go to `landing-pages/`. Audits go to `audits/`.
 
+### File Naming Conventions
+- Articles: `topic-slug-YYYY-MM-DD.md`
+- Research briefs: `brief-topic-slug-YYYY-MM-DD.md`
+- Reports: `[type]-report-topic-slug-YYYY-MM-DD.md`
+
 ## Context Files
 
-`context/` contains brand guidelines that inform all content generation:
-- `brand-voice.md` - Tone, messaging pillars
+`context/` contains brand guidelines that inform all content generation. These must be customized per business (see `examples/castos/` for a complete reference):
+- `brand-voice.md` - Tone, messaging pillars, voice pillars
 - `style-guide.md` - Grammar, formatting standards
 - `seo-guidelines.md` - Keyword and structure rules
 - `internal-links-map.md` - Key pages for internal linking
-- `features.md` - Product features
+- `features.md` - Product features and differentiators
 - `competitor-analysis.md` - Competitive intelligence
 - `cro-best-practices.md` - Conversion optimization guidelines
+- `target-keywords.md` - Keyword clusters and intent classification
+- `writing-examples.md` - 3-5 exemplary posts that teach writing style
+
+Content quality depends heavily on how well these files are populated. All commands and agents reference them.
 
 ## WordPress Integration
 
-Publishing uses the WordPress REST API with a custom MU-plugin (`wordpress/seo-machine-yoast-rest.php`) that exposes Yoast SEO fields. Articles are published in WordPress block format (HTML comments in Markdown files).
+Publishing uses the WordPress REST API with a custom MU-plugin (`wordpress/seo-machine-yoast-rest.php`) that exposes Yoast SEO fields. Also requires `wordpress/functions-snippet.php` in your theme. Posts are always created as drafts (never auto-published). Articles use WordPress block format (HTML comments in Markdown).
+
+## Contributing
+
+Commands go in `.claude/commands/` with sections: "What This Command Does", "Process", "Output", "File Management". Agents go in `.claude/agents/` with: "Core Mission", "Expertise Areas", "Output Format", "Quality Standards". Follow existing file structure and conventions.
