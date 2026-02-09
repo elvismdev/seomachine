@@ -455,15 +455,34 @@ def create_default_structure(topic: str) -> List[str]:
 
 
 if __name__ == "__main__":
-    print("Article Planner")
-    print("=" * 50)
-    print("This module is used by the /article command")
-    print("to create section-by-section article plans.")
-    print()
-    print("Section Types:")
-    for section_type in SectionType:
-        print(f"  - {section_type.value}")
-    print()
-    print("CTA Types:")
-    for cta_type in CTAType:
-        print(f"  - {cta_type.value}")
+    import sys
+    import json
+
+    if len(sys.argv) < 2:
+        print("Usage: python article_planner.py <topic> [--keyword <keyword>] [--json]", file=sys.stderr)
+        sys.exit(1)
+
+    topic = sys.argv[1]
+    output_json = '--json' in sys.argv
+    keyword = None
+    if '--keyword' in sys.argv:
+        kw_idx = sys.argv.index('--keyword')
+        if kw_idx + 1 < len(sys.argv):
+            keyword = sys.argv[kw_idx + 1]
+
+    structure = create_default_structure(topic)
+    result = {
+        'topic': topic,
+        'keyword': keyword or topic,
+        'structure': structure,
+        'section_types': [st.value for st in SectionType],
+        'cta_types': [ct.value for ct in CTAType]
+    }
+
+    if output_json:
+        print(json.dumps(result, indent=2, default=str))
+    else:
+        print(f"Article Plan: {topic}")
+        print(f"Sections: {len(structure)}")
+        for section in structure:
+            print(f"  - {section}")

@@ -600,46 +600,42 @@ def analyze_keywords(
 
 # Example usage
 if __name__ == "__main__":
-    sample_content = """
-# How to Start a Podcast: Complete Guide
+    import sys
+    import json
 
-Starting a podcast has never been easier. In this guide, you'll learn how to start a podcast from scratch.
+    if len(sys.argv) < 3:
+        print("Usage: python keyword_analyzer.py <file_path> <primary_keyword> [secondary1,secondary2,...] [--json]", file=sys.stderr)
+        sys.exit(1)
 
-## Choosing Your Podcast Topic
+    file_path = sys.argv[1]
+    primary_keyword = sys.argv[2]
+    output_json = '--json' in sys.argv
 
-When you start a podcast, the first step is choosing your topic. Your podcast topic should be something you're passionate about.
+    # Parse secondary keywords (comma-separated, optional)
+    secondary_keywords = []
+    for arg in sys.argv[3:]:
+        if arg == '--json':
+            continue
+        secondary_keywords = [k.strip() for k in arg.split(',')]
+        break
 
-## Getting Podcast Equipment
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
+        sys.exit(1)
 
-To start a podcast, you need basic equipment. A good microphone is essential for podcast recording.
+    result = analyze_keywords(content, primary_keyword, secondary_keywords)
 
-## Podcast Hosting Platforms
-
-Podcast hosting is crucial. Choose a reliable podcast hosting platform for your show.
-    """
-
-    result = analyze_keywords(
-        sample_content,
-        "start a podcast",
-        ["podcast hosting", "podcast equipment", "podcast recording"],
-        target_density=1.5
-    )
-
-    print("=== Keyword Analysis ===")
-    print(f"\nWord Count: {result['word_count']}")
-    print(f"\nPrimary Keyword: {result['primary_keyword']['keyword']}")
-    print(f"Density: {result['primary_keyword']['density']}%")
-    print(f"Status: {result['primary_keyword']['density_status']}")
-    print(f"\nCritical Placements:")
-    for key, value in result['primary_keyword']['critical_placements'].items():
-        print(f"  {key}: {value}")
-
-    print(f"\nKeyword Stuffing Risk: {result['keyword_stuffing']['risk_level']}")
-    if result['keyword_stuffing']['warnings']:
-        print("Warnings:")
-        for warning in result['keyword_stuffing']['warnings']:
-            print(f"  - {warning}")
-
-    print(f"\nRecommendations:")
-    for rec in result['recommendations']:
-        print(f"  {rec}")
+    if output_json:
+        print(json.dumps(result, indent=2, default=str))
+    else:
+        print("=== Keyword Analysis ===")
+        print(f"\nWord Count: {result['word_count']}")
+        print(f"\nPrimary Keyword: {result['primary_keyword']['keyword']}")
+        print(f"Density: {result['primary_keyword']['density']}%")
+        print(f"Status: {result['primary_keyword']['density_status']}")
+        print(f"\nRecommendations:")
+        for rec in result['recommendations']:
+            print(f"  {rec}")

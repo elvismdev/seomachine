@@ -698,85 +698,55 @@ def score_landing_page(
 
 # Example usage
 if __name__ == "__main__":
-    sample_content = """
-# Launch Your Product in Minutes, Not Months
+    import sys
+    import json
 
-**Meta Title**: Easy Product Hosting | Start Free Today - [YOUR COMPANY]
-**Meta Description**: Get started in minutes with [YOUR COMPANY]. No technical skills needed. Free 14-day trial, no credit card required. Join 50,000+ customers today.
-**Target Keyword**: product hosting
-**Conversion Goal**: trial
+    if len(sys.argv) < 2:
+        print("Usage: python landing_page_scorer.py <file_path> [--type seo|ppc] [--goal trial|demo|lead] [--keyword <keyword>] [--json]", file=sys.stderr)
+        sys.exit(1)
 
----
+    file_path = sys.argv[1]
+    output_json = '--json' in sys.argv
+    page_type = 'seo'
+    conversion_goal = 'trial'
+    primary_keyword = None
+    if '--type' in sys.argv:
+        type_idx = sys.argv.index('--type')
+        if type_idx + 1 < len(sys.argv):
+            page_type = sys.argv[type_idx + 1]
+    if '--goal' in sys.argv:
+        goal_idx = sys.argv.index('--goal')
+        if goal_idx + 1 < len(sys.argv):
+            conversion_goal = sys.argv[goal_idx + 1]
+    if '--keyword' in sys.argv:
+        kw_idx = sys.argv.index('--keyword')
+        if kw_idx + 1 < len(sys.argv):
+            primary_keyword = sys.argv[kw_idx + 1]
 
-Ready to get started? [YOUR COMPANY] makes it ridiculously simple.
-
-50,000+ customers trust us. Here's why:
-
-## Start Building Today, Not "Someday"
-
-Most platforms make you jump through hoops. Complex dashboards. Confusing settings. Technical jargon.
-
-[YOUR COMPANY] is different. Upload your content, configure your settings, and hit publish. That's it.
-
-**[Start Your Free Trial →]**
-
-## What You Get
-
-- **Unlimited storage** - No caps, no surprises
-- **Automatic distribution** - Everywhere your audience is
-- **Built-in analytics** - See what's working
-- **24/7 support** - Real humans, real help
-
-## Real Results from Real Customers
-
-"I launched in one afternoon. Six months later, I have 10,000 users."
-— **Sarah M., The Creative Hour**
-
-"[YOUR COMPANY] helped me grow my audience by 300% in year one. The analytics alone are worth it."
-— **Marcus T., Tech Talk Daily**
-
-## No Risk, All Reward
-
-- Free 14-day trial
-- No credit card required
-- Cancel anytime
-
-**[Start Your Free Trial →]**
-
-Still have questions? [Book a quick demo](/demo) with our team.
-    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
+        sys.exit(1)
 
     result = score_landing_page(
-        content=sample_content,
-        page_type='seo',
-        conversion_goal='trial',
-        meta_title="Easy Product Hosting | Start Free Today - [YOUR COMPANY]",
-        meta_description="Get started in minutes with [YOUR COMPANY]. No technical skills needed. Free 14-day trial, no credit card required. Join 50,000+ customers today.",
-        primary_keyword="product hosting"
+        content=content,
+        page_type=page_type,
+        conversion_goal=conversion_goal,
+        primary_keyword=primary_keyword
     )
 
-    print("=== Landing Page Score Report ===")
-    print(f"\nPage Type: {result['page_type'].upper()}")
-    print(f"Conversion Goal: {result['conversion_goal']}")
-    print(f"\nOverall Score: {result['overall_score']}/100")
-    print(f"Grade: {result['grade']}")
-    print(f"Publishing Ready: {result['publishing_ready']}")
-
-    print(f"\nCategory Scores:")
-    for category, score in result['category_scores'].items():
-        print(f"  {category}: {score}")
-
-    if result['critical_issues']:
-        print(f"\nCritical Issues:")
-        for issue in result['critical_issues']:
-            print(f"  ❌ {issue}")
-
-    if result['warnings']:
-        print(f"\nWarnings:")
-        for warning in result['warnings']:
-            print(f"  ⚠️  {warning}")
-
-    if result['suggestions']:
-        print(f"\nSuggestions:")
-        for suggestion in result['suggestions'][:3]:
-            print(f"  💡 {suggestion}")
+    if output_json:
+        print(json.dumps(result, indent=2, default=str))
+    else:
+        print("=== Landing Page Score Report ===")
+        print(f"Page Type: {result['page_type'].upper()}")
+        print(f"Overall Score: {result['overall_score']}/100")
+        print(f"Grade: {result['grade']}")
+        print(f"Publishing Ready: {result['publishing_ready']}")
+        for category, score in result['category_scores'].items():
+            print(f"  {category}: {score}")
+        if result['critical_issues']:
+            for issue in result['critical_issues']:
+                print(f"  CRITICAL: {issue}")

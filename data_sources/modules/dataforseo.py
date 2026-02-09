@@ -416,34 +416,49 @@ class DataForSEO:
 
 # Example usage
 if __name__ == "__main__":
+    import sys
+    import json
+
     from dotenv import load_dotenv
     load_dotenv('data_sources/config/.env')
 
-    dfs = DataForSEO()
+    if len(sys.argv) < 2:
+        print("Usage: python dataforseo.py <keyword> [--domain <domain>] [--json]", file=sys.stderr)
+        sys.exit(1)
 
-    print("Checking rankings for Castos...")
-    rankings = dfs.get_rankings(
-        domain="castos.com",
-        keywords=["podcast hosting", "podcast analytics", "private podcast"]
-    )
+    keyword = sys.argv[1]
+    output_json = '--json' in sys.argv
+    domain = None
+    if '--domain' in sys.argv:
+        dom_idx = sys.argv.index('--domain')
+        if dom_idx + 1 < len(sys.argv):
+            domain = sys.argv[dom_idx + 1]
 
-    for rank in rankings:
-        print(f"\nKeyword: {rank['keyword']}")
-        print(f"Position: {rank['position'] or 'Not ranking'}")
-        print(f"Search Volume: {rank['search_volume']:,}" if rank['search_volume'] else "Search Volume: N/A")
+    try:
+        dfs = DataForSEO()
+        serp = dfs.get_serp_data(keyword)
+        questions = dfs.get_questions(keyword)
 
-    print("\n\nGetting SERP data for 'podcast monetization'...")
-    serp = dfs.get_serp_data("podcast monetization")
+        result = {
+            'keyword': keyword,
+            'serp': serp,
+            'related_questions': questions[:10]
+        }
 
-    print(f"Search Volume: {serp['search_volume']:,}")
-    print(f"SERP Features: {', '.join(serp['features'])}")
-    print(f"\nTop 10 Results:")
-    for result in serp['organic_results'][:10]:
-        print(f"{result['position']}. {result['domain']}")
-        print(f"   {result['url']}")
+        if domain:
+            rankings = dfs.get_rankings(domain=domain, keywords=[keyword])
+            result['rankings'] = rankings
 
-    print("\n\nRelated questions for 'podcast monetization':")
-    questions = dfs.get_questions("podcast monetization")
-    for q in questions[:10]:
-        print(f"- {q['question']}")
-        print(f"  Volume: {q['search_volume']:,}" if q['search_volume'] else "  Volume: N/A")
+        if output_json:
+            print(json.dumps(result, indent=2, default=str))
+        else:
+            print(f"SERP data for '{keyword}':")
+            print(f"  Volume: {serp.get('search_volume', 'N/A')}")
+            for r in serp.get('organic_results', [])[:5]:
+                print(f"  {r['position']}. {r['domain']}")
+    except Exception as e:
+        if output_json:
+            print(json.dumps({'error': str(e), 'data_available': False}, indent=2))
+        else:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)

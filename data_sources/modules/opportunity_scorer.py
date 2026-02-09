@@ -466,50 +466,47 @@ class OpportunityScorer:
 
 
 if __name__ == "__main__":
-    # Example usage
-    scorer = OpportunityScorer()
+    import sys
+    import json
 
-    # Example: Quick win opportunity
+    if len(sys.argv) < 2:
+        print("Usage: python opportunity_scorer.py <keyword> --position <pos> --volume <vol> [--difficulty <diff>] [--impressions <imp>] [--json]", file=sys.stderr)
+        sys.exit(1)
+
+    keyword = sys.argv[1]
+    output_json = '--json' in sys.argv
+    position = 20.0
+    volume = 500
+    difficulty = 50
+    impressions = 100
+
+    for flag, var_name in [('--position', 'position'), ('--volume', 'volume'), ('--difficulty', 'difficulty'), ('--impressions', 'impressions')]:
+        if flag in sys.argv:
+            idx = sys.argv.index(flag)
+            if idx + 1 < len(sys.argv):
+                locals()[var_name] = float(sys.argv[idx + 1])
+
+    scorer = OpportunityScorer()
     keyword_data = {
-        'keyword': 'project management software',
-        'position': 12.3,
-        'impressions': 1500,
-        'clicks': 15,
-        'ctr': 0.01,
-        'commercial_intent': 2.5  # High commercial intent
+        'keyword': keyword,
+        'position': position,
+        'impressions': int(impressions),
+        'clicks': int(impressions * 0.02),
+        'ctr': 0.02
     }
 
+    opp_type = OpportunityType.QUICK_WIN if position <= 20 else OpportunityType.NEW_CONTENT
     result = scorer.calculate_score(
         keyword_data=keyword_data,
-        opportunity_type=OpportunityType.QUICK_WIN,
-        search_volume=2000,
-        difficulty=45,
-        serp_features=['featured_snippet', 'people_also_ask'],
-        cluster_value=75,
-        trend_direction='rising',
-        trend_percent=25
+        opportunity_type=opp_type,
+        search_volume=int(volume),
+        difficulty=int(difficulty)
     )
 
-    print("Opportunity Score Analysis")
-    print("=" * 60)
-    print(f"Keyword: {keyword_data['keyword']}")
-    print(f"Final Score: {result['final_score']}/100")
-    print(f"Priority: {result['priority']}")
-    print(f"Primary Factor: {result['primary_factor']}")
-    print(f"\nScore Breakdown:")
-    for factor, score in result['score_breakdown'].items():
-        print(f"  {factor}: {score}/100")
-    print(f"\nExplanation: {result['score_explanation']}")
-
-    # Calculate traffic potential
-    traffic = scorer.calculate_potential_traffic(
-        current_position=keyword_data['position'],
-        target_position=7,
-        impressions=keyword_data['impressions'],
-        current_clicks=keyword_data['clicks']
-    )
-
-    print(f"\nTraffic Potential:")
-    print(f"  Current: {traffic['current_clicks']} clicks/month (position {traffic['current_position']})")
-    print(f"  Potential: {traffic['potential_clicks']} clicks/month (position {traffic['target_position']})")
-    print(f"  Gain: +{traffic['additional_clicks']} clicks (+{traffic['percent_increase']}%)")
+    if output_json:
+        print(json.dumps(result, indent=2, default=str))
+    else:
+        print(f"Opportunity: {keyword}")
+        print(f"Score: {result['final_score']}/100 | Priority: {result['priority']}")
+        for factor, score in result['score_breakdown'].items():
+            print(f"  {factor}: {score}/100")

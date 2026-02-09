@@ -312,51 +312,46 @@ def compare_content_length(
 
 # Example usage
 if __name__ == "__main__":
-    # Example with mock SERP data
-    mock_serp = [
-        {'url': 'https://example1.com/podcast-guide', 'domain': 'example1.com', 'title': 'How to Start a Podcast'},
-        {'url': 'https://example2.com/podcast-tutorial', 'domain': 'example2.com', 'title': 'Podcast Tutorial'},
-        {'url': 'https://example3.com/podcasting-101', 'domain': 'example3.com', 'title': 'Podcasting 101'},
-    ]
-
-    # Note: In real usage, this would fetch actual content
-    # For demo, we'll create mock data
-    print("=== Content Length Comparison ===")
-    print("\nNote: In production, this would fetch real competitor content.")
-    print("Example output structure:")
-
-    example_output = {
-        'keyword': 'how to start a podcast',
-        'competitors_analyzed': 10,
-        'your_word_count': 2200,
-        'statistics': {
-            'min': 1800,
-            'max': 4500,
-            'mean': 2650,
-            'median': 2500,
-            'percentile_75': 3200
-        },
-        'recommendation': {
-            'recommended_min': 2500,
-            'recommended_optimal': 3200,
-            'recommended_max': 3840,
-            'your_status': 'short',
-            'message': 'Consider adding 1000 more words to match top performers.',
-            'reasoning': 'Based on median (2500) and 75th percentile (3200) of top 10 results'
-        },
-        'competitive_analysis': {
-            'total_competitors': 10,
-            'comparison': {
-                'shorter_than_you': 3,
-                'longer_than_you': 7,
-                'percentile': 30
-            },
-            'gap_to_median': {
-                'words': 300,
-                'percentage': 14
-            }
-        }
-    }
-
+    import sys
     import json
-    print(json.dumps(example_output, indent=2))
+
+    if len(sys.argv) < 2:
+        print("Usage: python content_length_comparator.py <file_path> --keyword <keyword> [--json]", file=sys.stderr)
+        sys.exit(1)
+
+    file_path = sys.argv[1]
+    output_json = '--json' in sys.argv
+    keyword = None
+    if '--keyword' in sys.argv:
+        kw_idx = sys.argv.index('--keyword')
+        if kw_idx + 1 < len(sys.argv):
+            keyword = sys.argv[kw_idx + 1]
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
+        sys.exit(1)
+
+    word_count = len(content.split())
+
+    try:
+        result = compare_content_length(
+            keyword=keyword or 'unknown',
+            your_word_count=word_count,
+            fetch_content=False
+        )
+        if output_json:
+            print(json.dumps(result, indent=2, default=str))
+        else:
+            print(f"Content Length Analysis: {word_count} words")
+            if result.get('recommendation'):
+                print(f"  Status: {result['recommendation'].get('your_status', 'N/A')}")
+                print(f"  {result['recommendation'].get('message', '')}")
+    except Exception as e:
+        if output_json:
+            print(json.dumps({'word_count': word_count, 'error': str(e)}, indent=2))
+        else:
+            print(f"Word count: {word_count}")
+            print(f"Note: Full comparison requires SERP data ({e})")

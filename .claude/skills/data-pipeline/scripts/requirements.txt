@@ -1,0 +1,5 @@
+# Dependencies for data-pipeline skill scripts
+google-analytics-data>=0.16.0
+google-auth>=2.22.0
+python-dotenv>=1.0.0
+requests>=2.31.0

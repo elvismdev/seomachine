@@ -455,35 +455,42 @@ def main():
         default='post',
         help='Content type: post, page, or custom post type (default: post)'
     )
+    parser.add_argument('--json', action='store_true', help='Output result as JSON')
     args = parser.parse_args()
 
     try:
+        import json as json_module
         publisher = WordPressPublisher()
         result = publisher.publish_draft(args.file_path, post_type=args.type)
 
-        type_label = result['post_type'].title()
-        print(f"\n✓ Parsed draft file")
-        print(f"✓ Converted {result['word_count']:,} words to HTML")
-        print(f"✓ Created WordPress {type_label} draft (ID: {result['post_id']})")
-        print(f"✓ Set Yoast meta (title, description, focus keyphrase)")
-
-        if result['categories']:
-            print(f"✓ Assigned categories: {', '.join(result['categories'])}")
-        if result['tags']:
-            print(f"✓ Assigned tags: {', '.join(result['tags'])}")
-
-        print(f"\nDraft published to WordPress!")
-        print(f"Edit URL: {result['edit_url']}")
+        if args.json:
+            print(json_module.dumps(result, indent=2, default=str))
+        else:
+            type_label = result['post_type'].title()
+            print(f"\n+ Parsed draft file")
+            print(f"+ Converted {result['word_count']:,} words to HTML")
+            print(f"+ Created WordPress {type_label} draft (ID: {result['post_id']})")
+            print(f"+ Set Yoast meta (title, description, focus keyphrase)")
+            if result['categories']:
+                print(f"+ Assigned categories: {', '.join(result['categories'])}")
+            if result['tags']:
+                print(f"+ Assigned tags: {', '.join(result['tags'])}")
+            print(f"\nDraft published to WordPress!")
+            print(f"Edit URL: {result['edit_url']}")
 
     except FileNotFoundError as e:
-        print(f"Error: {e}")
+        if args.json:
+            import json as json_module
+            print(json_module.dumps({'error': str(e)}, indent=2))
+        else:
+            print(f"Error: {e}")
         sys.exit(1)
-    except requests.exceptions.HTTPError as e:
-        print(f"WordPress API Error: {e}")
-        print(f"Response: {e.response.text if hasattr(e, 'response') else 'N/A'}")
-        sys.exit(1)
-    except ValueError as e:
-        print(f"Configuration Error: {e}")
+    except Exception as e:
+        if args.json:
+            import json as json_module
+            print(json_module.dumps({'error': str(e)}, indent=2))
+        else:
+            print(f"Error: {e}")
         sys.exit(1)
 
 

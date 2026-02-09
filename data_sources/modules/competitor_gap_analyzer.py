@@ -464,12 +464,36 @@ Based on what's ranking, these sections appear essential:
 
 
 if __name__ == "__main__":
-    # Example usage
-    print("Competitor Gap Analyzer")
-    print("=" * 50)
-    print("This module is used by the /article command")
-    print("to analyze competitor content and identify gaps.")
-    print()
-    print("Gap Types:")
-    for gap_type in GapType:
-        print(f"  - {gap_type.value}")
+    import sys
+    import json
+
+    if len(sys.argv) < 2:
+        print("Usage: python competitor_gap_analyzer.py <file_path> [--keyword <keyword>] [--json]", file=sys.stderr)
+        sys.exit(1)
+
+    file_path = sys.argv[1]
+    output_json = '--json' in sys.argv
+    keyword = None
+    if '--keyword' in sys.argv:
+        kw_idx = sys.argv.index('--keyword')
+        if kw_idx + 1 < len(sys.argv):
+            keyword = sys.argv[kw_idx + 1]
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
+        sys.exit(1)
+
+    analyzer = CompetitorGapAnalyzer()
+    analysis = analyzer.analyze_content(content, url=file_path, title=keyword or '')
+
+    if output_json:
+        print(json.dumps(analysis.to_dict(), indent=2, default=str))
+    else:
+        print(f"Competitor Gap Analysis: {file_path}")
+        print(f"Word count: {analysis.word_count}, Sections: {len(analysis.structure)}")
+        print(f"Gaps found: {len(analysis.gaps)}")
+        for g in analysis.gaps:
+            print(f"  [{g.priority.value}] {g.gap_type.value}: {g.description}")

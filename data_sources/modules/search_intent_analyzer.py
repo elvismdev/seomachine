@@ -342,33 +342,26 @@ def analyze_intent(
 
 # Example usage
 if __name__ == "__main__":
-    # Example 1: Informational query
-    result1 = analyze_intent("how to start a podcast")
-    print("Query:", result1['keyword'])
-    print("Primary Intent:", result1['primary_intent'])
-    print("Confidence:", result1['confidence'])
-    print()
+    import sys
+    import json
 
-    # Example 2: Commercial query with SERP data
-    result2 = analyze_intent(
-        "best podcast hosting platforms",
-        serp_features=['carousel', 'people_also_ask', 'video'],
-        top_results=[
-            {'title': 'Top 10 Podcast Hosting Platforms in 2024', 'description': 'Compare the best...'},
-            {'title': 'Best Podcast Hosting Services: Review', 'description': 'Our expert review...'}
-        ]
-    )
-    print("Query:", result2['keyword'])
-    print("Primary Intent:", result2['primary_intent'])
-    print("Confidence:", result2['confidence'])
-    print("Recommendations:", result2['recommendations'][:3])
-    print()
+    if len(sys.argv) < 2:
+        print("Usage: python search_intent_analyzer.py <keyword> [--json]", file=sys.stderr)
+        sys.exit(1)
 
-    # Example 3: Transactional query
-    result3 = analyze_intent(
-        "buy podcast microphone",
-        serp_features=['shopping_results', 'ads', 'local_pack']
-    )
-    print("Query:", result3['keyword'])
-    print("Primary Intent:", result3['primary_intent'])
-    print("Confidence:", result3['confidence'])
+    keyword = sys.argv[1]
+    output_json = '--json' in sys.argv
+
+    result = analyze_intent(keyword)
+
+    if output_json:
+        print(json.dumps(result, indent=2, default=str))
+    else:
+        print(f"Query: {result['keyword']}")
+        print(f"Primary Intent: {result['primary_intent']}")
+        print(f"Confidence: {result['confidence']}")
+        if result.get('secondary_intent'):
+            print(f"Secondary Intent: {result['secondary_intent']}")
+        print(f"\nRecommendations:")
+        for rec in result.get('recommendations', [])[:5]:
+            print(f"  {rec}")

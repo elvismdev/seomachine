@@ -397,32 +397,32 @@ def format_results(results: List[Dict]) -> str:
 
 
 def main():
-    """Analyze all articles from today"""
+    """CLI entry point for engagement analysis"""
+    import json as json_module
     import glob
 
-    # Find all articles from today
-    pattern = "drafts/*2025-12-10*.md"
-    files = sorted(glob.glob(pattern))
-
-    if not files:
-        print(f"No files found matching {pattern}")
+    if len(sys.argv) < 2:
+        print("Usage: python engagement_analyzer.py <file_path> [--json]", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Found {len(files)} articles to analyze...")
-    print("")
+    file_path = sys.argv[1]
+    output_json = '--json' in sys.argv
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
+        sys.exit(1)
 
     analyzer = EngagementAnalyzer()
-    results = []
+    filename = Path(file_path).name
+    result = analyzer.analyze(content, filename)
 
-    for filepath in files:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-
-        filename = Path(filepath).name
-        result = analyzer.analyze(content, filename)
-        results.append(result)
-
-    print(format_results(results))
+    if output_json:
+        print(json_module.dumps(result, indent=2, default=str))
+    else:
+        print(format_results([result]))
 
 
 if __name__ == '__main__':

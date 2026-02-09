@@ -592,61 +592,42 @@ def rate_seo_quality(
 
 # Example usage
 if __name__ == "__main__":
-    sample_content = """
-# How to Start a Podcast
+    import sys
+    import json
 
-Starting a podcast is easier than you think. This complete guide shows you how to start a podcast from scratch.
+    if len(sys.argv) < 2:
+        print("Usage: python seo_quality_rater.py <file_path> [--keyword <keyword>] [--json]", file=sys.stderr)
+        sys.exit(1)
 
-## Choose Your Topic
+    file_path = sys.argv[1]
+    output_json = '--json' in sys.argv
+    primary_keyword = None
 
-Pick a topic you're passionate about. Your podcast topic should resonate with your target audience.
+    # Parse --keyword flag
+    for i, arg in enumerate(sys.argv):
+        if arg == '--keyword' and i + 1 < len(sys.argv):
+            primary_keyword = sys.argv[i + 1]
 
-## Get Equipment
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
+        sys.exit(1)
 
-You'll need a microphone, headphones, and recording software.
+    result = rate_seo_quality(content=content, primary_keyword=primary_keyword)
 
-## Record Your First Episode
-
-Start recording! Don't worry about perfection on your first try.
-
-## Publish Your Podcast
-
-Upload to a podcast hosting platform and distribute to directories.
-
-Ready to start your podcast? Begin today with these simple steps.
-    """
-
-    result = rate_seo_quality(
-        content=sample_content,
-        meta_title="How to Start a Podcast: Complete Guide for 2024",
-        meta_description="Learn how to start a podcast from scratch with this step-by-step guide. Everything you need to know about podcast equipment, recording, and publishing.",
-        primary_keyword="start a podcast",
-        secondary_keywords=["podcast hosting", "recording software"],
-        keyword_density=1.8,
-        internal_link_count=4,
-        external_link_count=2
-    )
-
-    print("=== SEO Quality Report ===")
-    print(f"\nOverall Score: {result['overall_score']}/100")
-    print(f"Grade: {result['grade']}")
-    print(f"Publishing Ready: {result['publishing_ready']}")
-
-    print(f"\nCategory Scores:")
-    for category, score in result['category_scores'].items():
-        print(f"  {category}: {score}/100")
-
-    if result['critical_issues']:
-        print(f"\nCritical Issues:")
-        for issue in result['critical_issues']:
-            print(f"  ❌ {issue}")
-
-    if result['warnings']:
-        print(f"\nWarnings:")
-        for warning in result['warnings']:
-            print(f"  ⚠️  {warning}")
-
-    if result['suggestions']:
-        print(f"\nSuggestions:")
-        for suggestion in result['suggestions'][:3]:
-            print(f"  💡 {suggestion}")
+    if output_json:
+        print(json.dumps(result, indent=2, default=str))
+    else:
+        print("=== SEO Quality Report ===")
+        print(f"\nOverall Score: {result['overall_score']}/100")
+        print(f"Grade: {result['grade']}")
+        print(f"Publishing Ready: {result['publishing_ready']}")
+        print(f"\nCategory Scores:")
+        for category, score in result['category_scores'].items():
+            print(f"  {category}: {score}/100")
+        if result['critical_issues']:
+            print(f"\nCritical Issues:")
+            for issue in result['critical_issues']:
+                print(f"  - {issue}")

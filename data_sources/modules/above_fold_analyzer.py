@@ -455,58 +455,37 @@ def analyze_above_fold(content: str) -> Dict[str, Any]:
 
 # Example usage
 if __name__ == "__main__":
-    sample_content = """
-# Launch Your Product in 5 Minutes
+    import sys
+    import json
 
-The easiest way to start and grow your business. No technical skills needed.
+    if len(sys.argv) < 2:
+        print("Usage: python above_fold_analyzer.py <file_path> [--json]", file=sys.stderr)
+        sys.exit(1)
 
-Join 50,000+ customers who trust us.
+    file_path = sys.argv[1]
+    output_json = '--json' in sys.argv
 
-**[Start Your Free Trial →]**
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
+        sys.exit(1)
 
-## Why Customers Love Our Product
+    result = analyze_above_fold(content)
 
-Our platform makes everything simple...
-
-[Rest of content...]
-    """
-
-    result = analyze_above_fold(sample_content)
-
-    print("=== Above-the-Fold Analysis ===")
-    print(f"\nOverall Score: {result['overall_score']}/100")
-    print(f"Grade: {result['grade']}")
-    print(f"Passes 5-Second Test: {result['passes_5_second_test']}")
-
-    print(f"\nElement Scores:")
-    for element, score in result['element_scores'].items():
-        print(f"  {element}: {score}/100")
-
-    print(f"\nHeadline: {result['headline']['text']}")
-    print(f"  Quality: {result['headline']['quality']}")
-
-    print(f"\nValue Proposition:")
-    print(f"  Clarity: {result['value_proposition']['clarity']}")
-
-    print(f"\nCTA:")
-    if result['cta']['present']:
-        print(f"  Text: {result['cta']['first_cta']}")
+    if output_json:
+        print(json.dumps(result, indent=2, default=str))
     else:
-        print(f"  NOT FOUND")
-
-    print(f"\nTrust Signal:")
-    if result['trust_signal']['present']:
-        print(f"  Found: {result['trust_signal']['signals']}")
-    else:
-        print(f"  NOT FOUND")
-
-    if result['issues']:
-        print(f"\nIssues:")
-        for issue in result['issues']:
-            severity = {'critical': '❌', 'warning': '⚠️', 'suggestion': '💡'}
-            print(f"  {severity[issue['severity']]} {issue['issue']}")
-
-    if result['recommendations']:
-        print(f"\nRecommendations:")
-        for rec in result['recommendations']:
-            print(f"  → {rec}")
+        print("=== Above-the-Fold Analysis ===")
+        print(f"\nOverall Score: {result['overall_score']}/100")
+        print(f"Grade: {result['grade']}")
+        print(f"Passes 5-Second Test: {result['passes_5_second_test']}")
+        for element, score in result['element_scores'].items():
+            print(f"  {element}: {score}/100")
+        if result['issues']:
+            for issue in result['issues']:
+                print(f"  - {issue['issue']}")
+        if result['recommendations']:
+            for rec in result['recommendations']:
+                print(f"  -> {rec}")

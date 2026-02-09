@@ -378,23 +378,47 @@ class GoogleAnalytics:
 
 # Example usage
 if __name__ == "__main__":
+    import sys
+    import json
+
     from dotenv import load_dotenv
     load_dotenv('data_sources/config/.env')
 
-    ga = GoogleAnalytics()
+    output_json = '--json' in sys.argv
+    days = 30
+    limit = 10
+    if '--days' in sys.argv:
+        days_idx = sys.argv.index('--days')
+        if days_idx + 1 < len(sys.argv):
+            days = int(sys.argv[days_idx + 1])
+    if '--limit' in sys.argv:
+        limit_idx = sys.argv.index('--limit')
+        if limit_idx + 1 < len(sys.argv):
+            limit = int(sys.argv[limit_idx + 1])
 
-    print("Top 10 blog articles:")
-    top_pages = ga.get_top_pages(days=30, limit=10)
-    for i, page in enumerate(top_pages, 1):
-        print(f"{i}. {page['title']}")
-        print(f"   {page['path']}")
-        print(f"   {page['pageviews']:,} pageviews | {page['engagement_rate']:.1%} engagement")
-        print()
+    try:
+        ga = GoogleAnalytics()
+        top_pages = ga.get_top_pages(days=days, limit=limit)
+        declining = ga.get_declining_pages(comparison_days=days)
 
-    print("\nDeclining articles:")
-    declining = ga.get_declining_pages(comparison_days=30)
-    for page in declining[:5]:
-        print(f"- {page['title']}")
-        print(f"  {page['path']}")
-        print(f"  {page['change_percent']:.1f}% change ({page['previous_pageviews']} → {page['pageviews']})")
-        print()
+        result = {
+            'period_days': days,
+            'top_pages': top_pages,
+            'declining_pages': declining[:10]
+        }
+
+        if output_json:
+            print(json.dumps(result, indent=2, default=str))
+        else:
+            print(f"Top {limit} blog articles (last {days} days):")
+            for i, page in enumerate(top_pages, 1):
+                print(f"{i}. {page['title']} - {page['pageviews']:,} views")
+            print(f"\nDeclining articles:")
+            for page in declining[:5]:
+                print(f"- {page['title']} ({page['change_percent']:.1f}% change)")
+    except Exception as e:
+        if output_json:
+            print(json.dumps({'error': str(e), 'data_available': False}, indent=2))
+        else:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)

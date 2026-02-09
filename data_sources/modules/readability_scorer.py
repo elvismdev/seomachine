@@ -461,45 +461,36 @@ def score_readability(content: str) -> Dict[str, Any]:
     return scorer.analyze(content)
 
 
-# Example usage
 if __name__ == "__main__":
-    sample_content = """
-# How to Start a Podcast
+    import sys
+    import json
 
-Starting a podcast is easier than you might think. This guide will walk you through everything you need to know.
+    if len(sys.argv) < 2:
+        print("Usage: python readability_scorer.py <file_path> [--json]", file=sys.stderr)
+        sys.exit(1)
 
-## Choose Your Topic
+    file_path = sys.argv[1]
+    output_json = '--json' in sys.argv
 
-The first step is choosing what you want to talk about. Pick something you're passionate about and that your audience will find valuable. This ensures you'll have plenty to say and stay motivated over time.
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
+        sys.exit(1)
 
-## Get Your Equipment
+    result = score_readability(content)
 
-You don't need expensive equipment to start. A decent USB microphone, headphones, and free recording software like Audacity are enough for beginners. As you grow, you can upgrade your gear.
-
-## Record Your First Episode
-
-Don't worry about being perfect. Just hit record and start talking. Your first episode won't be your best, but it's an important step in your podcasting journey. Edit out major mistakes, but don't obsess over every detail.
-    """
-
-    result = score_readability(sample_content)
-
-    print("=== Readability Analysis ===")
-    print(f"\nOverall Score: {result['overall_score']:.1f}/100")
-    print(f"Grade: {result['grade']}")
-    print(f"Reading Level: Grade {result['reading_level']}")
-
-    print(f"\nKey Metrics:")
-    print(f"  Flesch Reading Ease: {result['readability_metrics']['flesch_reading_ease']}")
-    print(f"  Flesch-Kincaid Grade: {result['readability_metrics']['flesch_kincaid_grade']}")
-
-    print(f"\nStructure:")
-    print(f"  Avg Sentence Length: {result['structure_analysis']['avg_sentence_length']} words")
-    print(f"  Avg Sentences per Paragraph: {result['structure_analysis']['avg_sentences_per_paragraph']}")
-
-    print(f"\nComplexity:")
-    print(f"  Passive Voice: {result['complexity_analysis']['passive_sentence_ratio']}%")
-    print(f"  Complex Words: {result['complexity_analysis']['complex_word_ratio']}%")
-
-    print(f"\nRecommendations:")
-    for rec in result['recommendations']:
-        print(f"  {rec}")
+    if output_json:
+        print(json.dumps(result, indent=2, default=str))
+    else:
+        print("=== Readability Analysis ===")
+        print(f"\nOverall Score: {result['overall_score']:.1f}/100")
+        print(f"Grade: {result['grade']}")
+        print(f"Reading Level: Grade {result['reading_level']}")
+        print(f"\nKey Metrics:")
+        print(f"  Flesch Reading Ease: {result['readability_metrics']['flesch_reading_ease']}")
+        print(f"  Flesch-Kincaid Grade: {result['readability_metrics']['flesch_kincaid_grade']}")
+        print(f"\nRecommendations:")
+        for rec in result['recommendations']:
+            print(f"  {rec}")

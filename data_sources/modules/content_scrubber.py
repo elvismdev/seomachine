@@ -26,6 +26,20 @@ class ContentScrubber:
         '\u2060',  # Word joiner
         '\u00AD',  # Soft hyphen
         '\u202F',  # Narrow no-break space
+        # Added based on 2025 AI watermark research (gptwatermark.com, Rumi)
+        '\u00A0',  # Non-breaking space (common in ChatGPT output)
+        '\u2003',  # Em space
+        '\u2004',  # Three-per-em space
+        '\u2005',  # Four-per-em space
+        '\u2009',  # Thin space
+        '\u200A',  # Hair space
+    ]
+
+    # Em-dash and variants to normalize before context-aware replacement
+    EMDASH_CHARS = [
+        '\u2014',  # Em dash (standard)
+        '\u2E3A',  # Two-em dash
+        '\u2E3B',  # Three-em dash
     ]
 
     def __init__(self):
@@ -107,6 +121,10 @@ class ContentScrubber:
         - Period: For strong breaks or when near sentence end
         - Space: When em-dash is used for attribution or breaking phrases
         """
+        # Normalize two-em dash and three-em dash variants to standard em-dash
+        for dash_char in self.EMDASH_CHARS[1:]:  # Skip standard em-dash
+            content = content.replace(dash_char, '\u2014')
+
         # Find all em-dashes with surrounding context
         emdash_pattern = r'([^—]{0,100})—([^—]{0,100})'
 
@@ -252,23 +270,37 @@ def scrub_file(file_path: str, output_path: str = None, verbose: bool = False) -
 
 
 if __name__ == '__main__':
-    # Test the scrubber
-    test_content = """
-    This is a test\u200Bcontent with invisible\uFEFF characters.
+    import sys
+    import json
 
-    Here's a sentence with an em-dash—it should be replaced appropriately.
+    if len(sys.argv) < 2:
+        print("Usage: python content_scrubber.py <file_path> [--json] [--in-place]", file=sys.stderr)
+        sys.exit(1)
 
-    And another one—this time with\u200C more context—to test the logic.
+    file_path = sys.argv[1]
+    output_json = '--json' in sys.argv
+    in_place = '--in-place' in sys.argv
 
-    Final test: some content\u2060 with word\u00AD joiners and soft\u202F hyphens.
-    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
+        sys.exit(1)
 
-    print("Original content (with invisible chars):")
-    print(repr(test_content))
-    print("\n" + "="*60 + "\n")
+    scrubber = ContentScrubber()
+    cleaned, stats = scrubber.scrub(content)
 
-    cleaned = scrub_content(test_content, verbose=True)
+    if in_place:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(cleaned)
 
-    print("\n" + "="*60 + "\n")
-    print("Cleaned content:")
-    print(cleaned)
+    if output_json:
+        print(json.dumps(stats, indent=2))
+    else:
+        print(f"Unicode removed: {stats['unicode_removed']}")
+        print(f"Em-dashes replaced: {stats['emdashes_replaced']}")
+        print(f"Format control removed: {stats['format_control_removed']}")
+        if not in_place:
+            print("\nCleaned content:")
+            print(cleaned)

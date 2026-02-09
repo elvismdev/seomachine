@@ -1,0 +1,2 @@
+# Dependencies for landing-page-analysis skill scripts
+# No external dependencies - uses only Python stdlib (re, typing)

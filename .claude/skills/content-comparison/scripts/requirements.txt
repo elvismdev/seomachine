@@ -1,0 +1,2 @@
+# Dependencies for content-comparison skill scripts
+requests>=2.31.0

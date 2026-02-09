@@ -824,26 +824,31 @@ class ContentScorer:
 
 
 def main():
-    """CLI entry point for testing"""
+    """CLI entry point for content scoring"""
     import sys
+    import json as json_module
 
     if len(sys.argv) < 2:
-        print("Usage: python content_scorer.py <draft_file_path>")
+        print("Usage: python content_scorer.py <draft_file_path> [--json]", file=sys.stderr)
         sys.exit(1)
 
     file_path = sys.argv[1]
+    output_json = '--json' in sys.argv
 
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
     except FileNotFoundError:
-        print(f"Error: File not found: {file_path}")
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
         sys.exit(1)
 
     scorer = ContentScorer()
     result = scorer.score(content)
 
-    print(scorer.format_report(result))
+    if output_json:
+        print(json_module.dumps(result, indent=2, default=str))
+    else:
+        print(scorer.format_report(result))
 
 
 if __name__ == '__main__':

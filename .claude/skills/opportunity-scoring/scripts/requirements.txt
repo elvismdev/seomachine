@@ -1,0 +1,2 @@
+# Dependencies for opportunity-scoring skill scripts
+# No external dependencies - uses only Python stdlib

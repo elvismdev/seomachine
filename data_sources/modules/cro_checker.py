@@ -589,67 +589,46 @@ def check_cro(
 
 # Example usage
 if __name__ == "__main__":
-    sample_content = """
-# Launch Your Product in 5 Minutes
+    import sys
+    import json
 
-The easiest way to get started. Join 50,000+ customers who trust us.
+    if len(sys.argv) < 2:
+        print("Usage: python cro_checker.py <file_path> [--type seo|ppc] [--goal trial|demo|lead] [--json]", file=sys.stderr)
+        sys.exit(1)
 
-**[Start Your Free Trial →]**
+    file_path = sys.argv[1]
+    output_json = '--json' in sys.argv
+    page_type = 'seo'
+    conversion_goal = 'trial'
+    if '--type' in sys.argv:
+        type_idx = sys.argv.index('--type')
+        if type_idx + 1 < len(sys.argv):
+            page_type = sys.argv[type_idx + 1]
+    if '--goal' in sys.argv:
+        goal_idx = sys.argv.index('--goal')
+        if goal_idx + 1 < len(sys.argv):
+            conversion_goal = sys.argv[goal_idx + 1]
 
-## Why Customers Choose Us
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
+        sys.exit(1)
 
-- **Unlimited storage** - No caps, ever
-- **Easy setup** - One click to get started
-- **Great analytics** - Know your audience
+    result = check_cro(content, page_type=page_type, conversion_goal=conversion_goal)
 
-"This product helped me grow my audience by 300% in year one."
-— **Sarah M., Acme Corp**
-
-## How It Works
-
-1. Sign up (takes 2 minutes)
-2. Upload your first episode
-3. Publish everywhere
-
-**[Try Free for 14 Days →]**
-
-## FAQ
-
-**Do I need a credit card?**
-No credit card required. Cancel anytime.
-
-**How long is the free trial?**
-14 days of full access.
-
-## Ready to Start?
-
-**[Start Your Free Trial →]**
-
-No credit card required. Cancel anytime. Set up in under 5 minutes.
-    """
-
-    result = check_cro(sample_content, page_type='seo', conversion_goal='trial')
-
-    print("=== CRO Checklist Results ===")
-    print(f"\nScore: {result['score']}/100")
-    print(f"Grade: {result['grade']}")
-    print(f"Passes Audit: {result['passes_audit']}")
-
-    print(f"\nSummary:")
-    print(f"  Passed: {result['summary']['passed']}/{result['summary']['total_checks']}")
-    print(f"  Critical Failures: {result['summary']['critical_failures']}")
-    print(f"  Warnings: {result['summary']['warnings']}")
-
-    if result['critical_failures']:
-        print(f"\n❌ Critical Failures:")
-        for failure in result['critical_failures']:
-            print(f"  - {failure}")
-
-    print(f"\nCategory Scores:")
-    for category, data in result['categories'].items():
-        print(f"  {category}: {data['score']}%")
-
-    if result['recommendations'][:5]:
-        print(f"\nTop Recommendations:")
-        for rec in result['recommendations'][:5]:
-            print(f"  [{rec['priority'].upper()}] {rec['category']}: {rec['recommendation']}")
+    if output_json:
+        print(json.dumps(result, indent=2, default=str))
+    else:
+        print("=== CRO Checklist Results ===")
+        print(f"Score: {result['score']}/100")
+        print(f"Grade: {result['grade']}")
+        print(f"Passes Audit: {result['passes_audit']}")
+        print(f"Passed: {result['summary']['passed']}/{result['summary']['total_checks']}")
+        if result['critical_failures']:
+            for failure in result['critical_failures']:
+                print(f"  CRITICAL: {failure}")
+        if result['recommendations'][:5]:
+            for rec in result['recommendations'][:5]:
+                print(f"  [{rec['priority'].upper()}] {rec['category']}: {rec['recommendation']}")

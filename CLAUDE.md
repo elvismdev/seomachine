@@ -94,9 +94,44 @@ Six modules for landing page conversion optimization:
 
 `opportunity_scorer.py` uses 8 weighted factors: Volume (25%), Position (20%), Intent (20%), Competition (15%), Cluster (10%), CTR (5%), Freshness (5%), Trend (5%). Priority levels: CRITICAL, HIGH, MEDIUM, LOW, SKIP.
 
+### Orchestration Skills (Deterministic-First)
+
+10 skills in `.claude/skills/` that wrap Python modules via symlinks in `scripts/` directories. These run deterministic Python analysis first, then use LLM reasoning to interpret results:
+
+| Skill | Scripts | Purpose |
+|-------|---------|---------|
+| `content-quality-analysis` | content_scorer, readability_scorer, engagement_analyzer, seo_quality_rater | Composite quality scoring |
+| `seo-analysis` | keyword_analyzer, seo_quality_rater, search_intent_analyzer | Keyword density, TF-IDF, intent |
+| `content-scrubbing` | content_scrubber | AI watermark removal (12 Unicode chars + dash normalization) |
+| `landing-page-analysis` | landing_page_scorer, above_fold_analyzer, cta_analyzer, trust_signal_analyzer, cro_checker | Full CRO audit |
+| `landing-performance` | landing_performance | GA4/GSC performance tracking |
+| `data-pipeline` | google_analytics, google_search_console, dataforseo, data_aggregator | Traffic and search data |
+| `opportunity-scoring` | opportunity_scorer, competitor_gap_analyzer | Keyword prioritization + gap analysis |
+| `content-comparison` | content_length_comparator | SERP word count benchmarking |
+| `wordpress-publishing` | wordpress_publisher | WordPress REST API publishing |
+| `article-planning` | article_planner, section_writer | Article structure generation |
+
+All scripts accept `--json` flags for machine-readable output. Skills use `{baseDir}/scripts/` to reference scripts portably.
+
 ### Marketing Skills Library
 
-26 marketing skills in `.claude/skills/`, each with a `SKILL.md` and optional `references/` directory. Categories: Copywriting, CRO (page/form/signup/onboarding/popup/paywall), Strategy, Channels (email/social/paid-ads), SEO, Analytics. Invoked as slash commands (e.g., `/copywriting`, `/page-cro`, `/seo-audit`).
+26+ marketing skills in `.claude/skills/`, each with a `SKILL.md` and optional `references/` and `scripts/` directories. Categories: Copywriting, CRO (page/form/signup/onboarding/popup/paywall), Strategy, Channels (email/social/paid-ads), SEO, Analytics. Invoked as slash commands (e.g., `/copywriting`, `/page-cro`, `/seo-audit`). Five marketing skills (`seo-audit`, `page-cro`, `copywriting`, `analytics-tracking`, `form-cro`) have been enhanced with `scripts/` directories containing symlinked Python modules.
+
+### Skill Architecture (Symlinks)
+
+Orchestration skills use relative symlinks to share Python modules without copying:
+
+```
+.claude/skills/[skill-name]/
+  SKILL.md              # YAML frontmatter + execution instructions
+  scripts/
+    module.py -> ../../../../data_sources/modules/module.py  (symlink)
+    requirements.txt    # Dependencies
+  references/
+    reference-doc.md    # Scoring criteria, benchmarks, etc.
+```
+
+This pattern provides: progressive disclosure (frontmatter loaded at startup, full skill on trigger), deterministic-first execution (Python runs before LLM interprets), and zero module duplication (symlinks to single source of truth).
 
 ## Running Python Scripts
 

@@ -1,0 +1,4 @@
+# Dependencies for landing-performance skill scripts
+# Requires GA4/GSC API credentials configured in data_sources/config/.env
+google-analytics-data>=0.16.0
+google-auth>=2.22.0

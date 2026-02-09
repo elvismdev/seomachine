@@ -1,0 +1,2 @@
+# Dependencies for article-planning skill scripts
+# No external dependencies - uses only Python stdlib

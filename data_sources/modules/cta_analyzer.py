@@ -275,6 +275,7 @@ class CTAAnalyzer:
                 'has_mid_page': False,
                 'has_closing': False,
                 'distribution_quality': 'none',
+                'cta_count': 0,
                 'issues': ['No CTAs found']
             }
 
@@ -496,55 +497,38 @@ def analyze_ctas(
 
 # Example usage
 if __name__ == "__main__":
-    sample_content = """
-# Start Your Journey Today
+    import sys
+    import json
 
-Launch your product in minutes.
+    if len(sys.argv) < 2:
+        print("Usage: python cta_analyzer.py <file_path> [--goal trial|demo|lead] [--json]", file=sys.stderr)
+        sys.exit(1)
 
-**[Start Your Free Trial →]**
+    file_path = sys.argv[1]
+    output_json = '--json' in sys.argv
+    conversion_goal = 'trial'
+    if '--goal' in sys.argv:
+        goal_idx = sys.argv.index('--goal')
+        if goal_idx + 1 < len(sys.argv):
+            conversion_goal = sys.argv[goal_idx + 1]
 
-## Why Choose Us?
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
+        sys.exit(1)
 
-- Unlimited storage
-- Easy setup
-- Great analytics
+    result = analyze_ctas(content, conversion_goal=conversion_goal)
 
-Over 50,000 customers trust us.
-
-Learn more about our features.
-
-## Ready to Begin?
-
-**[Try Free for 14 Days →]**
-
-No credit card required. Cancel anytime.
-
-Questions? [Book a demo](/demo) with our team.
-    """
-
-    result = analyze_ctas(sample_content, conversion_goal='trial')
-
-    print("=== CTA Analysis Report ===")
-    print(f"\nSummary:")
-    print(f"  Total CTAs: {result['summary']['total_ctas']}")
-    print(f"  Average Quality: {result['summary']['average_quality_score']}/100")
-    print(f"  Distribution Score: {result['summary']['distribution_score']}/100")
-    print(f"  Goal Alignment: {result['summary']['goal_alignment_score']}/100")
-    print(f"  Overall Effectiveness: {result['summary']['overall_effectiveness']}/100")
-
-    print(f"\nCTAs Found:")
-    for cta in result['ctas']:
-        print(f"  [{cta['position_pct']:.0f}%] \"{cta['text']}\" (Score: {cta['quality_score']})")
-
-    print(f"\nDistribution: {result['distribution']['distribution_quality']}")
-    for issue in result['distribution']['issues']:
-        print(f"  ⚠️  {issue}")
-
-    print(f"\nGoal Alignment ({result['goal_alignment']['goal']}):")
-    print(f"  Primary matches: {result['goal_alignment']['primary_matches']}")
-    print(f"  Secondary matches: {result['goal_alignment']['secondary_matches']}")
-
-    if result['recommendations']:
-        print(f"\nTop Recommendations:")
-        for rec in result['recommendations'][:3]:
-            print(f"  [{rec['priority'].upper()}] {rec['recommendation']}")
+    if output_json:
+        print(json.dumps(result, indent=2, default=str))
+    else:
+        print("=== CTA Analysis Report ===")
+        print(f"Total CTAs: {result['summary']['total_ctas']}")
+        print(f"Overall Effectiveness: {result['summary']['overall_effectiveness']}/100")
+        for cta in result['ctas']:
+            print(f"  [{cta['position_pct']:.0f}%] \"{cta['text']}\" (Score: {cta['quality_score']})")
+        if result['recommendations']:
+            for rec in result['recommendations'][:3]:
+                print(f"  [{rec['priority'].upper()}] {rec['recommendation']}")

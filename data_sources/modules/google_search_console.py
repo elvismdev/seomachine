@@ -526,30 +526,43 @@ class GoogleSearchConsole:
 
 # Example usage
 if __name__ == "__main__":
+    import sys
+    import json
+
     from dotenv import load_dotenv
     load_dotenv('data_sources/config/.env')
 
-    gsc = GoogleSearchConsole()
+    output_json = '--json' in sys.argv
+    days = 30
+    if '--days' in sys.argv:
+        days_idx = sys.argv.index('--days')
+        if days_idx + 1 < len(sys.argv):
+            days = int(sys.argv[days_idx + 1])
 
-    print("Quick Win Opportunities (Position 11-20):")
-    quick_wins = gsc.get_quick_wins()
-    for i, kw in enumerate(quick_wins[:10], 1):
-        print(f"{i}. {kw['keyword']}")
-        print(f"   Position: {kw['position']} | Impressions: {kw['impressions']:,}")
-        print(f"   Opportunity Score: {kw['opportunity_score']:.1f}")
-        print()
+    try:
+        gsc = GoogleSearchConsole()
+        quick_wins = gsc.get_quick_wins()
+        low_ctr = gsc.get_low_ctr_pages()
+        trending = gsc.get_trending_queries()
 
-    print("\nLow CTR Pages (Need Better Meta):")
-    low_ctr = gsc.get_low_ctr_pages()
-    for page in low_ctr[:5]:
-        print(f"- {page['url']}")
-        print(f"  {page['impressions']:,} impressions | {page['ctr']:.2f}% CTR")
-        print(f"  Missing {page['missed_clicks']} potential clicks")
-        print()
+        result = {
+            'quick_wins': quick_wins[:20],
+            'low_ctr_pages': low_ctr[:10],
+            'trending_queries': trending[:10]
+        }
 
-    print("\nTrending Queries:")
-    trending = gsc.get_trending_queries()
-    for query in trending[:5]:
-        print(f"- {query['query']}")
-        print(f"  +{query['change_percent']:.1f}% impressions")
-        print()
+        if output_json:
+            print(json.dumps(result, indent=2, default=str))
+        else:
+            print("Quick Win Opportunities:")
+            for i, kw in enumerate(quick_wins[:10], 1):
+                print(f"{i}. {kw['keyword']} (pos {kw['position']}, {kw['impressions']:,} imp)")
+            print(f"\nLow CTR Pages:")
+            for page in low_ctr[:5]:
+                print(f"- {page['url']} ({page['ctr']:.2f}% CTR)")
+    except Exception as e:
+        if output_json:
+            print(json.dumps({'error': str(e), 'data_available': False}, indent=2))
+        else:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)

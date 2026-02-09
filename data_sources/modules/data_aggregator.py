@@ -304,45 +304,34 @@ class DataAggregator:
 
 # Example usage
 if __name__ == "__main__":
-    aggregator = DataAggregator()
+    import sys
+    import json
 
-    print("=" * 80)
-    print("CONTENT PERFORMANCE REPORT")
-    print("=" * 80)
+    output_json = '--json' in sys.argv
+    days = 30
+    if '--days' in sys.argv:
+        days_idx = sys.argv.index('--days')
+        if days_idx + 1 < len(sys.argv):
+            days = int(sys.argv[days_idx + 1])
 
-    # Generate full report
-    report = aggregator.generate_performance_report(days=30)
+    try:
+        aggregator = DataAggregator()
+        report = aggregator.generate_performance_report(days=days)
 
-    print(f"\nReport Period: Last {report['period_days']} days")
-    print(f"Generated: {report['generated_at']}")
-
-    # Summary
-    if report['summary']:
-        print("\n📊 SUMMARY")
-        print("-" * 80)
-        if 'total_pageviews' in report['summary']:
-            print(f"Total Pageviews: {report['summary']['total_pageviews']:,}")
-            print(f"Total Sessions: {report['summary']['total_sessions']:,}")
-            print(f"Avg Engagement Rate: {report['summary']['avg_engagement_rate']:.1%}")
-        if 'total_clicks' in report['summary']:
-            print(f"Total Clicks (GSC): {report['summary']['total_clicks']:,}")
-            print(f"Total Impressions: {report['summary']['total_impressions']:,}")
-            print(f"Avg CTR: {report['summary']['avg_ctr']:.2%}")
-
-    # Top performers
-    if report.get('top_performers'):
-        print("\n🏆 TOP 10 PERFORMERS")
-        print("-" * 80)
-        for i, page in enumerate(report['top_performers'][:10], 1):
-            print(f"{i}. {page['title']}")
-            print(f"   {page['pageviews']:,} views | {page['engagement_rate']:.1%} engagement")
-
-    # Recommendations
-    if report.get('recommendations'):
-        print("\n✅ TOP RECOMMENDATIONS")
-        print("-" * 80)
-        for i, rec in enumerate(report['recommendations'][:5], 1):
-            print(f"\n{i}. [{rec['priority'].upper()}] {rec['action']}")
-            print(f"   {rec['reason']}")
-
-    print("\n" + "=" * 80)
+        if output_json:
+            print(json.dumps(report, indent=2, default=str))
+        else:
+            print(f"Content Performance Report (last {report['period_days']} days)")
+            if report['summary']:
+                for key, val in report['summary'].items():
+                    print(f"  {key}: {val}")
+            if report.get('recommendations'):
+                print("\nRecommendations:")
+                for rec in report['recommendations'][:5]:
+                    print(f"  [{rec['priority'].upper()}] {rec['action']}")
+    except Exception as e:
+        if output_json:
+            print(json.dumps({'error': str(e), 'data_available': False}, indent=2))
+        else:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)

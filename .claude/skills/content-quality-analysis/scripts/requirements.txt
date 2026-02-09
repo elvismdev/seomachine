@@ -1,0 +1,2 @@
+# Dependencies for content-quality-analysis skill scripts
+textstat>=0.7.3

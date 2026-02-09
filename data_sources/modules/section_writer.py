@@ -541,17 +541,22 @@ def format_editing_prompt(
 
 
 if __name__ == "__main__":
-    print("Section Writer")
-    print("=" * 50)
-    print("This module provides section-type-specific writing")
-    print("and editing guidelines for the /article command.")
-    print()
-    print("Section Types:")
-    for section_type in SectionType:
-        print(f"  - {section_type.value}")
-    print()
-    print("AI Phrases to Remove:")
+    import sys
+    import json
+
+    output_json = '--json' in sys.argv
+
     writer = SectionWriter()
-    for phrase in writer.AI_PHRASES_TO_REMOVE[:5]:
-        print(f"  - \"{phrase}\"")
-    print("  ...")
+    result = {
+        'section_types': [st.value for st in SectionType],
+        'ai_phrases_to_remove': writer.AI_PHRASES_TO_REMOVE,
+        'guidelines': {st.value: writer.get_writing_guidelines(st) for st in SectionType}
+    }
+
+    if output_json:
+        print(json.dumps(result, indent=2, default=str))
+    else:
+        print("Section Writer Guidelines")
+        print("Section Types:")
+        for section_type in SectionType:
+            print(f"  - {section_type.value}")

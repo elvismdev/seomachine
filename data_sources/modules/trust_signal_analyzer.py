@@ -518,50 +518,35 @@ def analyze_trust_signals(content: str) -> Dict[str, Any]:
 
 # Example usage
 if __name__ == "__main__":
-    sample_content = """
-# Start Your Free Trial Today
+    import sys
+    import json
 
-Join 50,000+ customers who trust [YOUR COMPANY].
+    if len(sys.argv) < 2:
+        print("Usage: python trust_signal_analyzer.py <file_path> [--json]", file=sys.stderr)
+        sys.exit(1)
 
-"[YOUR COMPANY] helped me grow my audience by 300% in the first year. The analytics alone are worth it."
-— **Sarah M., The Creative Hour**
+    file_path = sys.argv[1]
+    output_json = '--json' in sys.argv
 
-"I launched in one afternoon and had 10,000 users within 3 months."
-— **Marcus T.**
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}", file=sys.stderr)
+        sys.exit(1)
 
-## Why Customers Choose Us
+    result = analyze_trust_signals(content)
 
-- Unlimited storage
-- Easy distribution
-
-**[Start Your Free Trial →]**
-
-14-day free trial. No credit card required. Cancel anytime.
-
-As featured in Industry Business Journal.
-
-Since 2017, we've helped creators launch successfully.
-    """
-
-    result = analyze_trust_signals(sample_content)
-
-    print("=== Trust Signal Analysis ===")
-    print(f"\nOverall Score: {result['overall_score']}/100")
-    print(f"Grade: {result['grade']}")
-
-    print(f"\nSummary:")
-    for key, value in result['summary'].items():
-        print(f"  {key}: {value}")
-
-    print(f"\nStrengths:")
-    for s in result['strengths']:
-        print(f"  ✓ {s}")
-
-    print(f"\nWeaknesses:")
-    for w in result['weaknesses']:
-        print(f"  ✗ {w}")
-
-    if result['recommendations']:
-        print(f"\nRecommendations:")
-        for rec in result['recommendations'][:3]:
-            print(f"  [{rec['priority'].upper()}] {rec['recommendation']}")
+    if output_json:
+        print(json.dumps(result, indent=2, default=str))
+    else:
+        print("=== Trust Signal Analysis ===")
+        print(f"Overall Score: {result['overall_score']}/100")
+        print(f"Grade: {result['grade']}")
+        for s in result['strengths']:
+            print(f"  + {s}")
+        for w in result['weaknesses']:
+            print(f"  - {w}")
+        if result['recommendations']:
+            for rec in result['recommendations'][:3]:
+                print(f"  [{rec['priority'].upper()}] {rec['recommendation']}")

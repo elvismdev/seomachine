@@ -455,34 +455,37 @@ def compare_landing_pages(
 
 # Example usage
 if __name__ == "__main__":
-    # Example usage (requires GA4 credentials)
-    print("Landing Page Performance Tracker")
-    print("=" * 40)
+    import sys
+    import json as json_module
 
-    # Check if modules are available
-    print(f"GA4 Available: {GA4_AVAILABLE}")
-    print(f"GSC Available: {GSC_AVAILABLE}")
+    if len(sys.argv) < 2:
+        print("Usage: python landing_performance.py <url> [--days <days>] [--goal trial|demo|lead] [--json]", file=sys.stderr)
+        sys.exit(1)
 
-    # Example (would need real credentials)
-    if GA4_AVAILABLE or GSC_AVAILABLE:
-        result = get_landing_page_performance(
-            url="https://yoursite.com/pricing/",
-            days=30,
-            conversion_goal='trial'
-        )
+    url = sys.argv[1]
+    output_json = '--json' in sys.argv
+    days = 30
+    conversion_goal = 'trial'
+    if '--days' in sys.argv:
+        days_idx = sys.argv.index('--days')
+        if days_idx + 1 < len(sys.argv):
+            days = int(sys.argv[days_idx + 1])
+    if '--goal' in sys.argv:
+        goal_idx = sys.argv.index('--goal')
+        if goal_idx + 1 < len(sys.argv):
+            conversion_goal = sys.argv[goal_idx + 1]
 
-        print(f"\nURL: {result['url']}")
+    result = get_landing_page_performance(url=url, days=days, conversion_goal=conversion_goal)
+
+    if output_json:
+        print(json_module.dumps(result, indent=2, default=str))
+    else:
+        print("=== Landing Page Performance ===")
+        print(f"URL: {result['url']}")
         print(f"Data Available: {result['data_available']}")
-
         if result.get('grades'):
-            print(f"\nGrades:")
             for category, grade in result['grades'].items():
                 print(f"  {category}: {grade}")
-
         if result.get('recommendations'):
-            print(f"\nRecommendations:")
             for rec in result['recommendations'][:3]:
                 print(f"  [{rec['priority'].upper()}] {rec['recommendation']}")
-    else:
-        print("\nNote: GA4 and GSC modules not available.")
-        print("This module requires google_analytics.py and google_search_console.py")
