@@ -120,7 +120,7 @@ All scripts accept `--json` flags for machine-readable output. Skills use `{base
 
 ### Marketing Skills Library
 
-26+ marketing skills in `.claude/skills/`, each with a `SKILL.md` and optional `references/` and `scripts/` directories. Categories: Copywriting, CRO (page/form/signup/onboarding/popup/paywall), Strategy, Channels (email/social/paid-ads), SEO, Analytics. Invoked as slash commands (e.g., `/copywriting`, `/page-cro`, `/seo-audit`). Five marketing skills (`seo-audit`, `page-cro`, `copywriting`, `analytics-tracking`, `form-cro`) have been enhanced with `scripts/` directories containing symlinked Python modules.
+36 marketing skills in `.claude/skills/`, each with a `SKILL.md` and optional `references/` and `scripts/` directories. Categories: Copywriting, CRO (page/form/signup/onboarding/popup/paywall), Strategy, Channels (email/social/paid-ads), SEO, Analytics. Invoked as slash commands (e.g., `/copywriting`, `/page-cro`, `/seo-audit`). Five marketing skills (`seo-audit`, `page-cro`, `copywriting`, `analytics-tracking`, `form-cro`) have been enhanced with `scripts/` directories containing symlinked Python modules.
 
 ### Skill Architecture (Symlinks)
 

@@ -36,7 +36,7 @@ my-skill/
 
 The `{baseDir}` variable in SKILL.md auto-resolves to the skill's directory, making `python {baseDir}/scripts/validator.py` portable across installations.
 
-**What this project's 26 skills actually use**: Only `SKILL.md` + optional `references/` with more markdown. Zero `scripts/` directories. Zero `.py` files. This is a **project choice**, not a Skills platform limitation. The Skills format fully supports bundled executable code.
+**What this project's 36 skills actually use**: Only `SKILL.md` + optional `references/` with more markdown. Zero `scripts/` directories. Zero `.py` files. This is a **project choice**, not a Skills platform limitation. The Skills format fully supports bundled executable code.
 
 **What this means for the analysis**: The commenter's suggestion is more architecturally viable than the earlier report acknowledged. Skills wrapping Python modules via `scripts/` directories is a **first-class supported pattern**, not a workaround. However, whether this is better than the existing command + agent architecture is a separate question.
 
@@ -127,7 +127,7 @@ These are either pure orchestration, data containers, or benchmark lookups that 
 
 The project operates on four layers, but they're **less integrated than they appear**:
 
-1. **Skills** (`.claude/skills/`) - 26 marketing prompt frameworks. Currently using only `SKILL.md` + `references/` (markdown only). The Skills platform supports `scripts/` directories with executable code, but this project doesn't use that capability yet.
+1. **Skills** (`.claude/skills/`) - 36 marketing prompt frameworks. Currently using only `SKILL.md` + `references/` (markdown only). The Skills platform supports `scripts/` directories with executable code, but this project doesn't use that capability yet.
 
 2. **Agents** (`.claude/agents/`) - 10 specialized LLM personas. Pure markdown. The Content Analyzer agent contains Python code blocks, but these are **pseudocode/documentation showing Claude what modules exist** - not executable instructions. Agents do NOT invoke Python directly.
 
@@ -200,7 +200,7 @@ Converting agents to Skills with bundled `scripts/` directories that auto-run th
 | "Skills can replace many python modules" | **Overstated.** 10 of 24 modules absolutely cannot or should not be replaced (API auth, specialized libraries, quality-gate scoring). 9 more shouldn't be (determinism > LLM guessing). Only ~5 are lightweight enough that Skills could absorb them. |
 | "Skills can replace all python modules" | **Wrong.** API clients and ML/NLP modules need Python. Quality-gate scoring modules need deterministic output. |
 | "Skills can use the code, or a simplified version" | **This is the right insight, and more viable than initially assessed.** Skills officially support `scripts/` directories with bundled Python. Skills wrapping Python scripts = best of both worlds. Deterministic metrics + intelligent interpretation. This is Anthropic's recommended pattern. |
-| "Template files" | **Already exists.** The 26 marketing skills and 10 agents ARE template files for LLM reasoning. |
+| "Template files" | **Already exists.** The 36 marketing skills and 10 agents ARE template files for LLM reasoning. |
 
 The commenter's intuition is sound - Skills as orchestration over computation is a strong pattern. But **"replace" is the wrong word. "Wrap" is what they should do.** And given this project was built before Skills launched, the command + agent architecture is essentially the same pattern with a different name.
 
@@ -210,7 +210,7 @@ The commenter's intuition is sound - Skills as orchestration over computation is
 
 ### Version 3 corrections (web research validation)
 
-1. **Skills are NOT "just markdown"**: The earlier report stated "Skills are markdown instruction files (not executable code)" and "No skill in `.claude/skills/` contains any Python file." While the second statement is factually true for THIS PROJECT, the first statement mischaracterizes the Skills platform. Official Anthropic documentation confirms Skills support `scripts/`, `references/`, and `assets/` subdirectories. The `scripts/` directory is specifically designed for bundling executable Python, shell, and Node.js scripts. This project's 26 skills happen to use only markdown, but that's a project choice, not a platform limitation.
+1. **Skills are NOT "just markdown"**: The earlier report stated "Skills are markdown instruction files (not executable code)" and "No skill in `.claude/skills/` contains any Python file." While the second statement is factually true for THIS PROJECT, the first statement mischaracterizes the Skills platform. Official Anthropic documentation confirms Skills support `scripts/`, `references/`, and `assets/` subdirectories. The `scripts/` directory is specifically designed for bundling executable Python, shell, and Node.js scripts. This project's 36 skills happen to use only markdown, but that's a project choice, not a platform limitation.
 2. **Syllable counting claim validated with benchmarks**: The report stated "An LLM cannot reliably count syllables." PhonologyBench research (4,000 datapoints) confirms: Claude-3-Sonnet = 55% accuracy, GPT-4 = 33%, human baseline = 90%. This is an architectural limitation of transformer tokenization (subword units don't preserve phonological structure), not a training gap that will be closed by scaling.
 3. **Unicode scrubbing claim validated**: The report stated "An LLM would over-process or miss patterns." Research confirms: (a) programmatic regex is 28,120x faster than LLM processing for character-level tasks, (b) LLMs sometimes refuse Unicode removal requests based on content policy, (c) newer ChatGPT models actively insert Narrow No-Break Space characters, and LLMs asked to discuss the problem may worsen it by inserting more invisible characters, (d) LLMs cannot guarantee deterministic removal across runs.
 4. **TF-IDF/K-means claim validated**: Research confirms LLMs cannot reliably count words (often 50%+ deviation from targets), cannot perform deterministic arithmetic needed for density calculation, and cannot implement true K-means convergence. The hybrid approach (scikit-learn computes, LLM interprets) is the research consensus - matching this project's architecture.
@@ -224,4 +224,4 @@ The commenter's intuition is sound - Skills as orchestration over computation is
 3. **`readability_scorer.py` and `keyword_analyzer.py` nuanced**: Only specific library calls (`textstat` formulas, sklearn clustering) are irreplaceable. ~80-90% of each module is simple heuristics. They stay in Category A but with the caveat that most of their code is replaceable - only the library-dependent functions are not.
 4. **Three modules promoted from Category C to Category A**: `content_scorer.py` (800+ lines, statistical scoring, quality gate), `landing_page_scorer.py` (20+ CRO pattern sets, dual scoring), `competitor_gap_analyzer.py` (multi-competitor aggregation, structural gap detection). These are more irreplaceable than some original Category A items.
 5. **Agent integration overstated in original**: Agents do NOT invoke Python directly. They contain pseudocode as documentation. The integration gap between LLM and Python layers is wider than originally described. Commands are the only connection point.
-6. **Skills have zero executable code in this project**: Confirmed via full directory scan. No `.py` files, no `scripts/` directories, no shell scripts. All 26 skills are purely `SKILL.md` + optional `references/` with more markdown. (But the platform supports it - see Version 3 correction #1.)
+6. **Skills have zero executable code in this project**: Confirmed via full directory scan. No `.py` files, no `scripts/` directories, no shell scripts. All 36 skills are purely `SKILL.md` + optional `references/` with more markdown. (But the platform supports it - see Version 3 correction #1.)
