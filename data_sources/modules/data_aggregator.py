@@ -5,6 +5,7 @@ Combines data from multiple sources (GA4, GSC, DataForSEO) for comprehensive ana
 """
 
 import os
+import sys
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 from dotenv import load_dotenv
@@ -32,19 +33,19 @@ class DataAggregator:
         try:
             self.ga = GoogleAnalytics()
         except Exception as e:
-            print(f"Warning: Google Analytics not configured: {e}")
+            print(f"Warning: Google Analytics not configured: {e}", file=sys.stderr)
             self.ga = None
 
         try:
             self.gsc = GoogleSearchConsole()
         except Exception as e:
-            print(f"Warning: Google Search Console not configured: {e}")
+            print(f"Warning: Google Search Console not configured: {e}", file=sys.stderr)
             self.gsc = None
 
         try:
             self.dfs = DataForSEO()
         except Exception as e:
-            print(f"Warning: DataForSEO not configured: {e}")
+            print(f"Warning: DataForSEO not configured: {e}", file=sys.stderr)
             self.dfs = None
 
     def get_comprehensive_page_performance(

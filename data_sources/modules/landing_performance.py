@@ -475,17 +475,24 @@ if __name__ == "__main__":
         if goal_idx + 1 < len(sys.argv):
             conversion_goal = sys.argv[goal_idx + 1]
 
-    result = get_landing_page_performance(url=url, days=days, conversion_goal=conversion_goal)
+    try:
+        result = get_landing_page_performance(url=url, days=days, conversion_goal=conversion_goal)
 
-    if output_json:
-        print(json_module.dumps(result, indent=2, default=str))
-    else:
-        print("=== Landing Page Performance ===")
-        print(f"URL: {result['url']}")
-        print(f"Data Available: {result['data_available']}")
-        if result.get('grades'):
-            for category, grade in result['grades'].items():
-                print(f"  {category}: {grade}")
-        if result.get('recommendations'):
-            for rec in result['recommendations'][:3]:
-                print(f"  [{rec['priority'].upper()}] {rec['recommendation']}")
+        if output_json:
+            print(json_module.dumps(result, indent=2, default=str))
+        else:
+            print("=== Landing Page Performance ===")
+            print(f"URL: {result['url']}")
+            print(f"Data Available: {result['data_available']}")
+            if result.get('grades'):
+                for category, grade in result['grades'].items():
+                    print(f"  {category}: {grade}")
+            if result.get('recommendations'):
+                for rec in result['recommendations'][:3]:
+                    print(f"  [{rec['priority'].upper()}] {rec['recommendation']}")
+    except Exception as e:
+        if output_json:
+            print(json_module.dumps({'error': str(e), 'data_available': False}, indent=2))
+        else:
+            print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)

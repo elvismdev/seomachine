@@ -541,9 +541,9 @@ if __name__ == "__main__":
 
     try:
         gsc = GoogleSearchConsole()
-        quick_wins = gsc.get_quick_wins()
-        low_ctr = gsc.get_low_ctr_pages()
-        trending = gsc.get_trending_queries()
+        quick_wins = gsc.get_quick_wins(days=days)
+        low_ctr = gsc.get_low_ctr_pages(days=days)
+        trending = gsc.get_trending_queries(days_comparison=days)
 
         result = {
             'quick_wins': quick_wins[:20],
