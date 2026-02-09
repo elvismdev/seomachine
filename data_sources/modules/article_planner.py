@@ -470,19 +470,26 @@ if __name__ == "__main__":
         if kw_idx + 1 < len(sys.argv):
             keyword = sys.argv[kw_idx + 1]
 
-    structure = create_default_structure(topic)
-    result = {
-        'topic': topic,
-        'keyword': keyword or topic,
-        'structure': structure,
-        'section_types': [st.value for st in SectionType],
-        'cta_types': [ct.value for ct in CTAType]
-    }
+    try:
+        structure = create_default_structure(topic)
+        result = {
+            'topic': topic,
+            'keyword': keyword or topic,
+            'structure': structure,
+            'section_types': [st.value for st in SectionType],
+            'cta_types': [ct.value for ct in CTAType]
+        }
 
-    if output_json:
-        print(json.dumps(result, indent=2, default=str))
-    else:
-        print(f"Article Plan: {topic}")
-        print(f"Sections: {len(structure)}")
-        for section in structure:
-            print(f"  - {section}")
+        if output_json:
+            print(json.dumps(result, indent=2, default=str))
+        else:
+            print(f"Article Plan: {topic}")
+            print(f"Sections: {len(structure)}")
+            for section in structure:
+                print(f"  - {section}")
+    except Exception as e:
+        if output_json:
+            print(json.dumps({'error': str(e)}, indent=2))
+        else:
+            print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)

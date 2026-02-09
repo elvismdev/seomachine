@@ -171,3 +171,8 @@ python3 my_module.py /path/to/file.md --json  # Run twice, same result
 | content-comparison | 1 module | File path + keyword |
 | wordpress-publishing | 1 module | File path |
 | article-planning | 2 modules | Topic |
+| seo-audit | 1 module | File path |
+| page-cro | 2 modules | File path + page type + goal |
+| copywriting | 1 module | File path |
+| analytics-tracking | 1 module | Various (API-based) |
+| form-cro | 1 module | File path + goal |

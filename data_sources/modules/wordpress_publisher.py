@@ -483,14 +483,14 @@ def main():
             import json as json_module
             print(json_module.dumps({'error': str(e)}, indent=2))
         else:
-            print(f"Error: {e}")
+            print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
         if args.json:
             import json as json_module
             print(json_module.dumps({'error': str(e)}, indent=2))
         else:
-            print(f"Error: {e}")
+            print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 

@@ -547,10 +547,20 @@ if __name__ == "__main__":
     output_json = '--json' in sys.argv
 
     writer = SectionWriter()
+
+    def _guidelines_to_dict(g):
+        return {
+            'section_type': g.section_type.value,
+            'requirements': g.requirements,
+            'dos': g.dos,
+            'donts': g.donts,
+            'quality_checks': g.quality_checks
+        }
+
     result = {
         'section_types': [st.value for st in SectionType],
         'ai_phrases_to_remove': writer.AI_PHRASES_TO_REMOVE,
-        'guidelines': {st.value: writer.get_writing_guidelines(st) for st in SectionType}
+        'guidelines': {st.value: _guidelines_to_dict(writer.get_writing_guidelines(st)) for st in SectionType}
     }
 
     if output_json:

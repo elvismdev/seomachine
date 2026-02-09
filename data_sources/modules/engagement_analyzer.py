@@ -399,7 +399,6 @@ def format_results(results: List[Dict]) -> str:
 def main():
     """CLI entry point for engagement analysis"""
     import json as json_module
-    import glob
 
     if len(sys.argv) < 2:
         print("Usage: python engagement_analyzer.py <file_path> [--json]", file=sys.stderr)

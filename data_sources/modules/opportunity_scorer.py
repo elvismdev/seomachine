@@ -480,11 +480,17 @@ if __name__ == "__main__":
     difficulty = 50
     impressions = 100
 
-    for flag, var_name in [('--position', 'position'), ('--volume', 'volume'), ('--difficulty', 'difficulty'), ('--impressions', 'impressions')]:
+    def _get_flag_value(flag, default):
         if flag in sys.argv:
             idx = sys.argv.index(flag)
             if idx + 1 < len(sys.argv):
-                locals()[var_name] = float(sys.argv[idx + 1])
+                return float(sys.argv[idx + 1])
+        return default
+
+    position = _get_flag_value('--position', position)
+    volume = _get_flag_value('--volume', volume)
+    difficulty = _get_flag_value('--difficulty', difficulty)
+    impressions = _get_flag_value('--impressions', impressions)
 
     scorer = OpportunityScorer()
     keyword_data = {

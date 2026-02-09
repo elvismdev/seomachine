@@ -421,4 +421,4 @@ if __name__ == "__main__":
             print(json.dumps({'error': str(e), 'data_available': False}, indent=2))
         else:
             print(f"Error: {e}", file=sys.stderr)
-            sys.exit(1)
+        sys.exit(1)

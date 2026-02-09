@@ -96,7 +96,7 @@ Six modules for landing page conversion optimization:
 
 ### Orchestration Skills (Deterministic-First)
 
-10 skills in `.claude/skills/` that wrap Python modules via symlinks in `scripts/` directories. These run deterministic Python analysis first, then use LLM reasoning to interpret results:
+15 skills in `.claude/skills/` that wrap Python modules via symlinks in `scripts/` directories. These run deterministic Python analysis first, then use LLM reasoning to interpret results:
 
 | Skill | Scripts | Purpose |
 |-------|---------|---------|
@@ -110,6 +110,11 @@ Six modules for landing page conversion optimization:
 | `content-comparison` | content_length_comparator | SERP word count benchmarking |
 | `wordpress-publishing` | wordpress_publisher | WordPress REST API publishing |
 | `article-planning` | article_planner, section_writer | Article structure generation |
+| `seo-audit` | seo_quality_rater | SEO audit with deterministic scoring |
+| `page-cro` | cro_checker, landing_page_scorer | CRO audit with deterministic checks |
+| `copywriting` | content_scorer | Copy quality with deterministic scoring |
+| `analytics-tracking` | data_aggregator | Analytics with aggregated data |
+| `form-cro` | cta_analyzer | Form CRO with CTA analysis |
 
 All scripts accept `--json` flags for machine-readable output. Skills use `{baseDir}/scripts/` to reference scripts portably.
 

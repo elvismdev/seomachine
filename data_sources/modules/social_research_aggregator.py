@@ -417,23 +417,38 @@ def create_empty_youtube_research() -> YouTubeResearch:
 
 
 if __name__ == "__main__":
-    print("Social Research Aggregator")
-    print("=" * 50)
-    print("This module is used by the /article command")
-    print("to structure social research from Reddit and YouTube.")
-    print()
-    print("Insight Types:")
-    for insight_type in InsightType:
-        print(f"  - {insight_type.value}")
-    print()
+    import sys
+    import json
 
-    # Example search queries
-    aggregator = SocialResearchAggregator()
-    queries = aggregator.build_search_queries("content marketing automation")
-    print("Example Search Queries:")
-    print("\nReddit:")
-    for q in queries["reddit"]:
-        print(f"  - {q}")
-    print("\nYouTube:")
-    for q in queries["youtube"]:
-        print(f"  - {q}")
+    if len(sys.argv) < 2:
+        print("Usage: python social_research_aggregator.py <topic> [--json]", file=sys.stderr)
+        sys.exit(1)
+
+    topic = sys.argv[1]
+    output_json = '--json' in sys.argv
+
+    try:
+        aggregator = SocialResearchAggregator()
+        queries = aggregator.build_search_queries(topic)
+        result = {
+            'topic': topic,
+            'insight_types': [it.value for it in InsightType],
+            'search_queries': queries
+        }
+
+        if output_json:
+            print(json.dumps(result, indent=2, default=str))
+        else:
+            print(f"Social Research: {topic}")
+            print(f"\nReddit queries:")
+            for q in queries.get("reddit", []):
+                print(f"  - {q}")
+            print(f"\nYouTube queries:")
+            for q in queries.get("youtube", []):
+                print(f"  - {q}")
+    except Exception as e:
+        if output_json:
+            print(json.dumps({'error': str(e)}, indent=2))
+        else:
+            print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
