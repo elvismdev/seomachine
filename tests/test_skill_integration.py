@@ -75,7 +75,7 @@ EXPECTED_SYMLINKS = {
 
 
 def test_symlinks():
-    print("\n[1/8] Symlink Verification")
+    print("\n[1/12] Symlink Verification")
     count = 0
     for skill, scripts in sorted(EXPECTED_SYMLINKS.items()):
         for script in sorted(scripts):
@@ -161,7 +161,7 @@ def is_valid_json(text):
 
 
 def test_module_cli():
-    print("\n[2/8] Module CLI Tests")
+    print("\n[2/12] Module CLI Tests")
     fixture = str(FIXTURE)
 
     # File-based modules
@@ -245,7 +245,7 @@ def test_module_cli():
 # ── 3. Import Chain Tests ──────────────────────────────────────────────────
 
 def test_import_chains():
-    print("\n[3/8] Import Chain Tests")
+    print("\n[3/12] Import Chain Tests")
 
     # Test 1: copywriting/scripts/ can import content_scorer
     scripts_dir = SKILLS_DIR / "copywriting" / "scripts"
@@ -273,7 +273,7 @@ def test_import_chains():
 # ── 4. Content Analysis Pipeline ───────────────────────────────────────────
 
 def test_content_pipeline():
-    print("\n[4/8] Content Analysis Pipeline")
+    print("\n[4/12] Content Analysis Pipeline")
     fixture = str(FIXTURE)
 
     # Test 1: readability_scorer has readability_metrics.flesch_reading_ease
@@ -318,7 +318,7 @@ def test_content_pipeline():
 # ── 5. Scrubber Pipeline ──────────────────────────────────────────────────
 
 def test_scrubber():
-    print("\n[5/8] Scrubber Pipeline")
+    print("\n[5/12] Scrubber Pipeline")
 
     # Create temp file with known watermarks
     watermarked = (
@@ -375,7 +375,7 @@ def test_scrubber():
 # ── 6. SKILL.md Validation ─────────────────────────────────────────────────
 
 def test_skill_frontmatter():
-    print("\n[6/8] SKILL.md Validation")
+    print("\n[6/12] SKILL.md Validation")
 
     for skill_name in sorted(EXPECTED_SYMLINKS.keys()):
         skill_md = SKILLS_DIR / skill_name / "SKILL.md"
@@ -415,7 +415,7 @@ def test_skill_frontmatter():
 # ── 7. Command Path Verification ──────────────────────────────────────────
 
 def test_command_paths():
-    print("\n[7/8] Command Path Verification")
+    print("\n[7/12] Command Path Verification")
 
     if not COMMANDS_DIR.exists():
         fail("commands dir", "missing")
@@ -467,7 +467,7 @@ EXPECTED_AGENTS = [
 
 
 def test_agent_files():
-    print("\n[8/8] Agent File Verification")
+    print("\n[8/12] Agent File Verification")
 
     for agent in EXPECTED_AGENTS:
         agent_file = AGENTS_DIR / f"{agent}.md"
@@ -478,6 +478,159 @@ def test_agent_files():
             fail(label, "empty")
         else:
             ok(f"{label} ({agent_file.stat().st_size} bytes)")
+
+
+# ── 9. Context File Validation ─────────────────────────────────────────────
+
+CONTEXT_DIR = ROOT / "context"
+
+# All context files referenced by @context/ in commands and agents
+EXPECTED_CONTEXT_FILES = [
+    "brand-voice.md",
+    "competitor-analysis.md",
+    "cro-best-practices.md",
+    "features.md",
+    "internal-links-map.md",
+    "seo-guidelines.md",
+    "style-guide.md",
+    "target-keywords.md",
+    "writing-examples.md",
+]
+
+# Minimum size in bytes — context files with only template placeholders are useless
+MIN_CONTEXT_SIZE = 500
+
+
+def test_context_files():
+    print("\n[9/12] Context File Validation")
+
+    if not CONTEXT_DIR.exists():
+        fail("context/", "directory missing")
+        return
+
+    for filename in EXPECTED_CONTEXT_FILES:
+        filepath = CONTEXT_DIR / filename
+        label = f"context/{filename}"
+        if not filepath.exists():
+            fail(label, "missing")
+        elif filepath.stat().st_size == 0:
+            fail(label, "empty")
+        elif filepath.stat().st_size < MIN_CONTEXT_SIZE:
+            fail(label, f"only {filepath.stat().st_size} bytes (likely placeholder)")
+        else:
+            ok(f"{label} ({filepath.stat().st_size:,} bytes)")
+
+
+# ── 10. Output Directory Structure ────────────────────────────────────────
+
+# Directories that the pipeline writes into
+REQUIRED_DIRS = ["drafts", "research", "rewrites", "published", "topics"]
+OPTIONAL_DIRS = ["review-required", "landing-pages", "audits"]
+
+
+def test_output_directories():
+    print("\n[10/12] Output Directory Structure")
+
+    for dirname in REQUIRED_DIRS:
+        dirpath = ROOT / dirname
+        if dirpath.is_dir():
+            ok(f"{dirname}/")
+        else:
+            fail(f"{dirname}/", "missing (required for content pipeline)")
+
+    for dirname in OPTIONAL_DIRS:
+        dirpath = ROOT / dirname
+        if dirpath.is_dir():
+            ok(f"{dirname}/ (present)")
+        else:
+            # Optional dirs are created on demand — just note them
+            print(f"  SKIP  {dirname}/ (optional, created on demand)")
+
+
+# ── 11. Config & Credentials Validation ──────────────────────────────────
+
+def test_config_files():
+    print("\n[11/12] Config & Credentials Validation")
+
+    # competitors.example.json must exist and be valid JSON
+    example_config = ROOT / "config" / "competitors.example.json"
+    if example_config.exists():
+        try:
+            data = json.loads(example_config.read_text(encoding="utf-8"))
+            required_keys = {"direct_competitors", "bofu_keywords"}
+            if required_keys.issubset(data.keys()):
+                ok(f"competitors.example.json (valid, {len(data)} keys)")
+            else:
+                fail("competitors.example.json", f"missing keys: {required_keys - set(data.keys())}")
+        except json.JSONDecodeError as e:
+            fail("competitors.example.json", f"invalid JSON: {e}")
+    else:
+        fail("competitors.example.json", "missing")
+
+    # .env.example must exist
+    env_example = ROOT / "data_sources" / "config" / ".env.example"
+    if env_example.exists():
+        content = env_example.read_text(encoding="utf-8")
+        required_vars = ["GA4_PROPERTY_ID", "GSC_SITE_URL", "DATAFORSEO_LOGIN"]
+        missing = [v for v in required_vars if v not in content]
+        if not missing:
+            ok(f".env.example ({len(content)} bytes, all required vars documented)")
+        else:
+            fail(".env.example", f"missing vars: {missing}")
+    else:
+        fail(".env.example", "missing")
+
+    # WordPress plugin files
+    wp_dir = ROOT / "wordpress"
+    for wp_file in ["seo-machine-yoast-rest.php", "functions-snippet.php"]:
+        filepath = wp_dir / wp_file
+        if filepath.exists() and filepath.stat().st_size > 0:
+            ok(f"wordpress/{wp_file} ({filepath.stat().st_size:,} bytes)")
+        elif filepath.exists():
+            fail(f"wordpress/{wp_file}", "empty")
+        else:
+            fail(f"wordpress/{wp_file}", "missing")
+
+    # requirements.txt
+    reqs = ROOT / "data_sources" / "requirements.txt"
+    if reqs.exists():
+        content = reqs.read_text(encoding="utf-8")
+        critical_deps = ["textstat", "python-dotenv", "requests", "beautifulsoup4", "markdown"]
+        missing = [d for d in critical_deps if d not in content]
+        if not missing:
+            ok(f"requirements.txt (all critical deps listed)")
+        else:
+            fail("requirements.txt", f"missing deps: {missing}")
+    else:
+        fail("requirements.txt", "missing")
+
+
+# ── 12. Python Dependencies Check ────────────────────────────────────────
+
+CRITICAL_IMPORTS = [
+    ("textstat", "textstat"),
+    ("dotenv", "python-dotenv"),
+    ("requests", "requests"),
+    ("bs4", "beautifulsoup4"),
+    ("markdown", "markdown"),
+    ("sklearn", "scikit-learn"),
+    ("numpy", "numpy"),
+    ("pandas", "pandas"),
+]
+
+
+def test_python_deps():
+    print("\n[12/12] Python Dependencies Check")
+
+    for module_name, pip_name in CRITICAL_IMPORTS:
+        result = subprocess.run(
+            [sys.executable, "-c", f"import {module_name}"],
+            capture_output=True, text=True
+        )
+        if result.returncode == 0:
+            ok(f"import {module_name} ({pip_name})")
+        else:
+            fail(f"import {module_name}", f"pip install {pip_name}")
 
 
 # ── Runner ─────────────────────────────────────────────────────────────────
@@ -498,6 +651,10 @@ def main():
     test_skill_frontmatter()
     test_command_paths()
     test_agent_files()
+    test_context_files()
+    test_output_directories()
+    test_config_files()
+    test_python_deps()
 
     total = passed + failed
     print(f"\n=== Results: {passed}/{total} passed, {failed} failed ===")
