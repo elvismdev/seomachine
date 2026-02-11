@@ -170,8 +170,12 @@ class KeywordAnalyzer:
         """Extract sections with headers from content"""
         sections = []
 
+        # Strip code blocks before parsing headings to avoid matching
+        # bash comments (# ...) inside fenced code blocks as H1s
+        clean_content = re.sub(r'```[\s\S]*?```', '', content)
+
         # Split by headers (H1, H2, H3)
-        lines = content.split('\n')
+        lines = clean_content.split('\n')
         current_section = {'type': 'intro', 'header': '', 'content': '', 'start_pos': 0}
         current_pos = 0
 
@@ -250,10 +254,12 @@ class KeywordAnalyzer:
         last_para = content.split('\n\n')[-1].lower() if '\n\n' in content else content[-500:].lower()
         in_conclusion = keyword_lower in last_para
 
-        # H1 (first heading)
+        # H1 (find first section with type 'h1')
         in_h1 = False
-        if sections and sections[0].get('header'):
-            in_h1 = keyword_lower in sections[0]['header'].lower()
+        for section in sections:
+            if section['type'] == 'h1':
+                in_h1 = keyword_lower in section['header'].lower()
+                break
 
         # H2 headings
         h2_count = 0
