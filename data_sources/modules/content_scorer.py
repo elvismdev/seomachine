@@ -245,18 +245,39 @@ class ContentScorer:
             'priority_fixes': priority_fixes
         }
 
+    def _parse_yaml_frontmatter(self, content: str) -> Dict[str, str]:
+        """Parse YAML frontmatter between --- delimiters"""
+        match = re.match(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
+        if not match:
+            return {}
+        frontmatter = {}
+        for line in match.group(1).split('\n'):
+            if ':' in line:
+                key, _, value = line.partition(':')
+                frontmatter[key.strip()] = value.strip()
+        return frontmatter
+
     def _clean_for_analysis(self, content: str) -> str:
         """Remove markdown formatting for text analysis"""
         text = content
 
-        # Remove frontmatter/metadata block
+        # Remove YAML frontmatter
+        text = re.sub(r'^---\s*\n.*?\n---\s*\n', '', text, count=1, flags=re.DOTALL)
+
+        # Remove frontmatter/metadata block (bold markdown style)
         text = re.sub(r'^\*\*[^*]+\*\*:\s*.+$', '', text, flags=re.MULTILINE)
 
         # Remove horizontal rules
         text = re.sub(r'^---+\s*$', '', text, flags=re.MULTILINE)
 
-        # Remove code blocks
-        text = re.sub(r'```[^`]*```', '', text)
+        # Remove code blocks (multi-line)
+        text = re.sub(r'```[\s\S]*?```', '', text)
+
+        # Remove inline code
+        text = re.sub(r'`[^`]+`', '', text)
+
+        # Remove table rows
+        text = re.sub(r'^\|.*\|$', '', text, flags=re.MULTILINE)
 
         # Remove links but keep text
         text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
@@ -508,16 +529,25 @@ class ContentScorer:
         primary_keyword = metadata.get('primary_keyword', '')
 
         # Extract from content if not provided
+        # Try YAML frontmatter first
+        fm = self._parse_yaml_frontmatter(content)
+
+        if not meta_title:
+            meta_title = fm.get('Meta Title', '')
         if not meta_title:
             match = re.search(r'\*\*Meta Title\*\*:\s*(.+)', content)
             if match:
                 meta_title = match.group(1).strip()
 
         if not meta_description:
+            meta_description = fm.get('Meta Description', '')
+        if not meta_description:
             match = re.search(r'\*\*Meta Description\*\*:\s*(.+)', content)
             if match:
                 meta_description = match.group(1).strip()
 
+        if not primary_keyword:
+            primary_keyword = fm.get('Primary Keyword', '') or fm.get('Target Keyword', '')
         if not primary_keyword:
             match = re.search(r'\*\*(?:Target|Primary) Keyword\*\*:\s*(.+)', content)
             if match:

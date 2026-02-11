@@ -68,14 +68,25 @@ class ReadabilityScorer:
 
     def _clean_content(self, content: str) -> str:
         """Clean content for readability analysis"""
+        text = content
+
+        # Remove YAML frontmatter
+        text = re.sub(r'^---\s*\n.*?\n---\s*\n', '', text, count=1, flags=re.DOTALL)
+
         # Remove markdown headers
-        text = re.sub(r'^#+\s+', '', content, flags=re.MULTILINE)
+        text = re.sub(r'^#+\s+', '', text, flags=re.MULTILINE)
 
         # Remove links but keep text
         text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
 
-        # Remove code blocks
-        text = re.sub(r'```[^`]*```', '', text)
+        # Remove code blocks (multi-line)
+        text = re.sub(r'```[\s\S]*?```', '', text)
+
+        # Remove inline code
+        text = re.sub(r'`[^`]+`', '', text)
+
+        # Remove table rows
+        text = re.sub(r'^\|.*\|$', '', text, flags=re.MULTILINE)
 
         # Remove extra whitespace
         text = re.sub(r'\n\s*\n', '\n\n', text)

@@ -155,7 +155,9 @@ class SEOQualityRater:
 
     def _analyze_structure(self, content: str, primary_keyword: Optional[str]) -> Dict[str, Any]:
         """Analyze content structure"""
-        lines = content.split('\n')
+        # Strip code blocks before analyzing headings
+        clean = re.sub(r'```[\s\S]*?```', '', content)
+        lines = clean.split('\n')
 
         # Extract headings
         h1_count = 0
@@ -615,7 +617,29 @@ if __name__ == "__main__":
         print(f"Error: File not found: {file_path}", file=sys.stderr)
         sys.exit(1)
 
-    result = rate_seo_quality(content=content, primary_keyword=primary_keyword)
+    # Parse YAML frontmatter for meta fields
+    meta_title = None
+    meta_description = None
+    fm_match = re.match(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
+    if fm_match:
+        for line in fm_match.group(1).split('\n'):
+            if ':' in line:
+                key, _, value = line.partition(':')
+                key = key.strip()
+                value = value.strip()
+                if key == 'Meta Title':
+                    meta_title = value
+                elif key == 'Meta Description':
+                    meta_description = value
+                elif key in ('Primary Keyword', 'Target Keyword') and not primary_keyword:
+                    primary_keyword = value
+
+    result = rate_seo_quality(
+        content=content,
+        meta_title=meta_title,
+        meta_description=meta_description,
+        primary_keyword=primary_keyword
+    )
 
     if output_json:
         print(json.dumps(result, indent=2, default=str))
