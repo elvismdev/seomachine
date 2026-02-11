@@ -37,6 +37,15 @@ Show advancement. Celebrate completions. Make the path visible.
 
 ---
 
+## Anti-Patterns
+
+- **Feature Tour Instead of Value**: Walking users through every feature before they've experienced any value. Nobody cares about your settings page on day one. Get them to their first success first.
+- **One-Size-Fits-All Onboarding**: Same flow for every user regardless of role, intent, or experience level. A power user and a first-timer need completely different paths.
+- **Checklist as Strategy**: A progress checklist is a UI pattern, not a strategy. If the checklist steps don't lead to genuine value, users complete it and still churn.
+- **Email-Only Onboarding**: Relying entirely on email sequences for activation. By the time they read your email, they may have already bounced from the product. In-app guidance at the moment of confusion beats a 3-day-delayed email every time.
+
+---
+
 ## Defining Activation
 
 ### Find Your Aha Moment

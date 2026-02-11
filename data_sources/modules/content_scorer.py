@@ -446,9 +446,28 @@ class ContentScorer:
         issues = []
         details = {}
 
-        # Remove metadata block
+        # Remove YAML frontmatter (metadata, not content)
+        content = re.sub(r'^---\s*\n.*?\n---\s*\n', '', content, count=1, flags=re.DOTALL)
+
+        # Remove bold markdown metadata block
         content = re.sub(r'^\*\*[^*]+\*\*:\s*.+$', '', content, flags=re.MULTILINE)
-        content = re.sub(r'^---+\s*$', '', content, flags=re.MULTILINE)
+
+        # Count code block characters before stripping them
+        code_chars = 0
+        for match in re.finditer(r'```[\s\S]*?```', content):
+            block = match.group()
+            # Count non-empty lines inside the code block (exclude the ``` delimiters)
+            inner_lines = block.split('\n')[1:-1]  # skip opening/closing ```
+            for line in inner_lines:
+                stripped = line.strip()
+                if stripped:
+                    code_chars += len(stripped)
+
+        # Remove code blocks so their lines aren't double-counted
+        content = re.sub(r'```[\s\S]*?```', '', content)
+
+        # Remove inline code
+        content = re.sub(r'`[^`]+`', '', content)
 
         lines = content.split('\n')
 
@@ -475,19 +494,24 @@ class ContentScorer:
             elif re.match(r'^#+\s', line_stripped):
                 header_chars += char_count
 
-        structured_chars = list_chars + table_chars
+        # Add code blocks back into total and treat as structured content
+        total_chars += code_chars
+        structured_chars = list_chars + table_chars + code_chars
         prose_chars = total_chars - structured_chars - header_chars
 
         prose_ratio = prose_chars / max(total_chars - header_chars, 1)
         list_ratio = list_chars / max(total_chars, 1)
         table_ratio = table_chars / max(total_chars, 1)
+        code_ratio = code_chars / max(total_chars, 1)
 
         details['prose_ratio'] = round(prose_ratio, 2)
         details['list_ratio'] = round(list_ratio, 2)
         details['table_ratio'] = round(table_ratio, 2)
+        details['code_ratio'] = round(code_ratio, 2)
         details['prose_chars'] = prose_chars
         details['list_chars'] = list_chars
         details['table_chars'] = table_chars
+        details['code_chars'] = code_chars
 
         # Calculate score
         # Target: 50-75% prose (sweet spot for readable, scannable content)

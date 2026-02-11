@@ -38,6 +38,15 @@ Gather this context (ask if not provided):
 
 ---
 
+## Anti-Patterns
+
+- **Publishing Without Distribution**: Creating content without a plan for how anyone will see it. A mediocre piece with great distribution beats a masterpiece nobody sees. Plan distribution *before* writing.
+- **Topic Cluster Theater**: Building elaborate hub-and-spoke architectures before proving a single piece can rank. Start with individual articles that work; connect them later.
+- **Keyword-Only Strategy**: Choosing topics purely based on search volume without validating customer fit. High-volume keywords that don't align with your product attract traffic that never converts.
+- **Content Calendar Treadmill**: Committing to "3 posts per week" regardless of whether the content has a strategic purpose. Frequency without strategy is just noise production.
+
+---
+
 ## Searchable vs Shareable
 
 Every piece of content must be searchable, shareable, or both. Prioritize in that order—search traffic is the foundation.
@@ -334,6 +343,39 @@ For each recommended piece:
 
 ### 3. Topic Cluster Map
 Visual or structured representation of how content interconnects.
+
+---
+
+## Deterministic Analysis (Run First)
+
+Before planning strategy, run quantitative analysis to ground decisions in data.
+
+### Opportunity Scoring
+
+Score specific keyword opportunities to prioritize content creation:
+
+```bash
+python3 {baseDir}/scripts/opportunity_scorer.py <keyword> --position <pos> --volume <vol> [--difficulty <diff>] --json
+```
+
+Returns: `final_score` (0-100), `priority` (CRITICAL/HIGH/MEDIUM/LOW/SKIP), `score_breakdown`, `primary_factor`.
+
+### Competitor Gap Analysis
+
+Analyze competitor content for exploitable gaps:
+
+```bash
+python3 {baseDir}/scripts/competitor_gap_analyzer.py <competitor_url_or_file> [--keyword <keyword>] --json
+```
+
+Returns: `word_count`, `structure`, `strengths`, `gaps`, `outdated_items`.
+
+**How to use the output:**
+1. Score your top 10-15 keyword targets to prioritize the content calendar
+2. Run gap analysis on competitor content to find topics they cover poorly
+3. Use `primary_factor` from scoring to understand *why* each opportunity is worth pursuing
+4. Combine scores with customer research to balance data-driven and customer-driven strategy
+5. Focus the first quarter on CRITICAL and HIGH priority items only
 
 ---
 

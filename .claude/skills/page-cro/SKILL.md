@@ -162,6 +162,40 @@ When recommending experiments, consider tests for:
 
 ---
 
+## Deterministic Analysis (Run First)
+
+Before providing qualitative CRO recommendations, run quantitative analysis when page files are available.
+
+### CRO Checklist Score
+
+Run the full CRO audit checklist for a structured pass/fail analysis:
+
+```bash
+python3 {baseDir}/scripts/cro_checker.py <file_path> --type <seo|ppc> --goal <trial|demo|lead> --json
+```
+
+Returns: `score`, `grade`, `passes_audit`, `summary`, `critical_failures`, `categories`, `recommendations`.
+
+### Landing Page Score
+
+For a comprehensive 0-100 CRO score with category breakdowns:
+
+```bash
+python3 {baseDir}/scripts/landing_page_scorer.py <file_path> --type <seo|ppc> --goal <trial|demo|lead> [--keyword <keyword>] --json
+```
+
+Returns: `overall_score`, `grade`, `category_scores` (above_fold, ctas, trust_signals, structure, seo), `critical_issues`, `warnings`, `suggestions`.
+
+### How to Use Script Results
+
+1. Run both scripts first to get objective baseline data
+2. Use `critical_failures` to prioritize your "Quick Wins" recommendations
+3. Use `category_scores` to identify which CRO dimension needs the most attention
+4. Combine quantitative findings with the qualitative analysis framework above
+5. Present scores alongside specific copy and design recommendations
+
+---
+
 ## Task-Specific Questions
 
 1. What's your current conversion rate and goal?

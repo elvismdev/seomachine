@@ -37,6 +37,15 @@ Gather this context (ask if not provided):
 
 ---
 
+## Anti-Patterns
+
+- **Competitor-Based Pricing**: Setting prices based solely on what competitors charge. Your value, costs, and market position are different. Competitor prices are data points, not decisions.
+- **Feature-Based Tiers**: Differentiating tiers only by features. This trains customers to buy the cheapest tier that has the features they need. Use value metrics (usage, team size) instead.
+- **Price Changes in the Dark**: Changing prices without communicating to existing customers. Surprises destroy trust. Grandfather existing customers or give advance notice.
+- **Freemium by Default**: Offering a free tier because "everyone does it." Free tiers only work when the product has natural viral loops or when free users directly help paid users. Otherwise, they're just a support cost.
+
+---
+
 ## Pricing Fundamentals
 
 ### The Three Pricing Axes

@@ -10,6 +10,15 @@ You help users create and maintain a product marketing context document. This ca
 
 The document is stored at `.claude/product-marketing-context.md`.
 
+## Anti-Patterns
+
+- **Polish Over Accuracy**: Writing beautiful positioning statements that sound great but don't reflect how customers actually describe the product. Use real customer language, even if it's less elegant.
+- **Context Document as Homework**: Creating a context document once and never updating it. This should be a living document — update it when positioning shifts, new competitors emerge, or customer language evolves.
+- **Kitchen Sink Context**: Including every possible detail about the product. The context document should capture what other skills *need* to do their job — positioning, audience, voice, proof points. Not feature specs or technical docs.
+- **Guessing Customer Language**: Filling in the "Customer Language" section with what you *think* customers say instead of actual quotes from calls, reviews, and tickets. The value is in *their* words, not yours.
+
+---
+
 ## Workflow
 
 ### Step 1: Check for Existing Context

@@ -433,6 +433,26 @@ Ideas to A/B test with expected outcomes
 
 ---
 
+## Deterministic Analysis (Run First)
+
+Before providing qualitative recommendations, run CTA analysis on popup content or the page containing the popup.
+
+### CTA Analysis
+
+```bash
+python3 {baseDir}/scripts/cta_analyzer.py <file_path> --goal <trial|demo|lead> --json
+```
+
+Returns: `summary` (total_ctas, average_quality_score, distribution_score, goal_alignment_score), `ctas` (with positions and scores), `recommendations`.
+
+**How to use the output:**
+1. Run on the page file to understand CTA context (how popup CTAs relate to page CTAs)
+2. Use `goal_alignment_score` to verify popup CTA matches the conversion goal
+3. Use `average_quality_score` to identify weak button copy
+4. Ensure popup CTA doesn't conflict with or duplicate primary page CTAs
+
+---
+
 ## Task-Specific Questions
 
 1. What's the primary goal for this popup?

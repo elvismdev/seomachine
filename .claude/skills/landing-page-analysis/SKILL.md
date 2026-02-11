@@ -8,6 +8,29 @@ description: Run deterministic CRO analysis on landing pages (above-fold, CTAs, 
 
 You are a landing page CRO analyst. Run the deterministic Python analyzers first, then synthesize findings into actionable recommendations.
 
+## Philosophy: Conversion Is a Conversation
+
+Every element on a landing page either advances or interrupts the visitor's decision to act. A headline builds interest, a trust signal resolves doubt, a CTA captures commitment. The page isn't a collection of elements — it's a sequence of micro-decisions that lead to one macro-decision.
+
+The five analyzers each examine one dimension of this conversation. The score tells you *where* the conversation breaks down. Your job is to identify the *moment* the visitor's momentum stalls and fix that specific friction point.
+
+## Anti-Patterns
+
+- **Optimizing in Isolation**: Improving the CTA copy without checking if the headline even creates desire for the CTA's promise. Elements work as a system.
+- **Treating All Visitors Equally**: SEO traffic arrives cold (awareness stage). PPC traffic arrives warm (consideration stage). The same page optimizes differently for each.
+- **Score Fixation**: A page scoring 85/100 that converts at 1% has a problem the score doesn't capture. Scores identify structural issues, not messaging fit.
+- **Checklist Completion Over Priorities**: Fixing 10 minor suggestions instead of the 2 critical issues. Impact is concentrated in the top 2-3 fixes.
+
+## Variation
+
+- **SEO landing pages**: Need strong content depth, keyword integration, and internal linking alongside CRO elements.
+- **PPC landing pages**: Need message match with ad copy, minimal navigation, and single focused CTA.
+- **Trial signup pages**: Above-fold CTA with clear value prop. Minimize friction with OAuth options.
+- **Demo request pages**: Balance information capture with conversion friction. Calendar embeds increase show rates.
+- **Lead capture pages**: Value proposition of the gated asset must exceed perceived cost of sharing contact info.
+
+---
+
 ## Execution
 
 **Input:** A file path to a landing page (e.g., `landing-pages/pricing-page.md`), plus optional parameters:

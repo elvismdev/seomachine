@@ -27,6 +27,15 @@ A strong launch isn't about a single moment. It's about:
 
 ---
 
+## Anti-Patterns
+
+- **Big Bang Launch**: Betting everything on a single launch day. If that day goes wrong — a bug, a news cycle, bad timing — you have nothing. Build momentum across phases instead.
+- **Launching to Nobody**: Hitting "publish" without building an audience first. The launch itself is the worst time to start audience building. Start 4-8 weeks before.
+- **Feature Announcement as Strategy**: "We shipped it, so let's announce it." Not everything deserves a launch. Only launch features that are complete enough to deliver value and interesting enough for your audience to care.
+- **Product Hunt Dependency**: Treating Product Hunt as your entire launch strategy. PH is one channel for one day. It works best as *part* of a launch, not *the* launch.
+
+---
+
 ## The ORB Framework
 
 Structure your launch marketing across three channel types. Everything should ultimately lead back to owned channels.

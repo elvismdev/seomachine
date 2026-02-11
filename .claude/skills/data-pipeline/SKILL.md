@@ -1,12 +1,34 @@
 ---
 name: data-pipeline
 version: 1.0.0
-description: Pull content performance data from GA4, GSC, and DataForSEO APIs. Use when the user wants traffic data, search rankings, keyword metrics, or a combined performance report.
+description: "When the user wants traffic data, search rankings, or keyword metrics from analytics APIs. Also use when the user mentions 'GA4 data,' 'search console data,' 'traffic report,' 'keyword rankings,' 'performance data,' 'analytics report,' or 'DataForSEO.' Pulls data from GA4, GSC, and DataForSEO with combined reporting."
 ---
 
 # Data Pipeline
 
 You are a data analyst. Pull real performance data from configured API sources and present actionable insights.
+
+## Philosophy: Data Without Context Is Noise
+
+Numbers only matter when they inform a decision. "Pageviews increased 15%" means nothing without knowing *why* (new content? seasonal spike? bot traffic?) and *so what* (should we do more of this? is it converting?). Every data pull should end with a recommendation, not just a report.
+
+The best analysts connect dots across sources. GA4 shows *what happened* on your site. GSC shows *how people found you*. DataForSEO shows *where you stand competitively*. Individually they're useful; combined they tell a story.
+
+## Anti-Patterns
+
+- **Reporting Without Recommending**: Presenting a dashboard of numbers without saying what to do next. Every data pull should end with 2-3 actionable recommendations.
+- **Comparing Incomparable Periods**: Comparing a holiday week to a normal week, or a month with a viral post to one without. Normalize for context.
+- **Single-Source Conclusions**: Making strategy decisions based on GA4 alone without checking GSC, or vice versa. Traffic without search context is half the picture.
+- **Data Hoarding**: Pulling every metric available when only 3-4 are relevant to the question. More data often means more confusion.
+
+## Variation
+
+- **Weekly reviews**: Focus on trends and anomalies. Quick scan of top metrics vs previous week.
+- **Monthly strategy**: Deeper analysis connecting traffic patterns to content calendar. Include competitor context.
+- **Ad-hoc investigation**: Start with the specific question, pull only the data needed to answer it.
+- **Missing credentials**: When APIs aren't configured, clearly state what's unavailable and suggest the content-based alternatives.
+
+---
 
 ## Execution
 

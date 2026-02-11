@@ -376,6 +376,35 @@ Same format as above
 
 ---
 
+## Deterministic Analysis (Run First)
+
+Before providing qualitative recommendations, run quantitative scoring when content files are available.
+
+### SEO Quality Score
+
+For article-level audits, run the SEO quality rater for a 0-100 score with category breakdowns:
+
+```bash
+python3 {baseDir}/scripts/seo_quality_rater.py <file_path> --keyword "<primary_keyword>" --json
+```
+
+Returns: `overall_score`, `category_scores` (content, structure, meta, links, readability), `critical_issues`, `warnings`, `suggestions`, `publishing_ready`.
+
+**Interpret the output:**
+- Score < 60: Critical issues blocking ranking. Fix before anything else.
+- Score 60-79: Publishable but leaving SEO value on the table.
+- Score 80+: Well-optimized. Focus shifts to content quality and authority.
+
+### How to Use Script Results
+
+1. Run the script first to get objective data
+2. Use the score breakdown to prioritize your audit findings
+3. Let the critical_issues guide your "must fix" list
+4. Combine script results with the qualitative audit framework above
+5. Present both quantitative scores and qualitative recommendations
+
+---
+
 ## Task-Specific Questions
 
 1. What pages/keywords matter most?

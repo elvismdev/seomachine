@@ -237,6 +237,27 @@ Recommended pages to create with priority order based on search volume.
 
 ---
 
+## Deterministic Analysis (Run First)
+
+Before writing competitor pages, run gap analysis on competitor content for data-driven positioning.
+
+### Competitor Content Gap Analysis
+
+```bash
+python3 {baseDir}/scripts/competitor_gap_analyzer.py <competitor_article_url_or_file> [--keyword <keyword>] --json
+```
+
+Returns: `word_count`, `structure` (H2 headings), `strengths`, `gaps` (with type, description, priority, opportunity), `outdated_items`.
+
+**How to use the output:**
+1. Run gap analysis on 2-3 competitor comparison/alternative pages
+2. Use `gaps` to identify sections your page must cover that theirs miss
+3. Use `outdated_items` to find claims you can counter with fresh data
+4. Use `strengths` to understand what you need to match or beat
+5. Structure your page to fill the highest-priority gaps first
+
+---
+
 ## Task-Specific Questions
 
 1. What are common reasons people switch to you?

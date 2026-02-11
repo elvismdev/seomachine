@@ -47,6 +47,15 @@ Before implementing schema, understand:
 
 ---
 
+## Anti-Patterns
+
+- **Schema Spam**: Adding schema markup for content that doesn't exist on the page. Google penalizes this. If you don't have reviews, don't add Review schema. If you don't have FAQs visible on the page, don't add FAQ schema.
+- **Set and Forget**: Implementing schema once and never updating it. When page content changes, schema must change too. Stale schema is worse than no schema because it actively misleads search engines.
+- **Schema as Ranking Factor**: Treating schema as something that will directly improve rankings. Schema enables rich results (which improve CTR) and helps search engines understand content, but it doesn't directly boost position.
+- **Microdata Over JSON-LD**: Using Microdata or RDFa instead of JSON-LD. Google recommends JSON-LD, it's easier to maintain, and it doesn't clutter your HTML. Unless you have a specific reason, always use JSON-LD.
+
+---
+
 ## Common Schema Types
 
 | Type | Use For | Required Properties |

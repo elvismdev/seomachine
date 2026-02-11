@@ -37,6 +37,15 @@ Gather this context (ask if not provided):
 
 ---
 
+## Anti-Patterns
+
+- **Build It and They Will Refer**: Launching a referral program without actively promoting it. A refer-a-friend page nobody visits produces zero referrals. You need to *ask* for referrals at the right moments.
+- **Incentive-First Design**: Designing the program around what's cheap to give away instead of what motivates customers to act. A $5 credit doesn't motivate a customer paying $200/month. The incentive must feel proportional to the effort.
+- **Ignoring the Referee Experience**: Optimizing the referrer's journey but neglecting what happens when their friend clicks the link. If the referee lands on a confusing page with no context about why they were referred, the loop breaks.
+- **Referral Program as Growth Strategy**: Expecting referrals to be a primary growth channel before achieving product-market fit. Referral programs amplify existing satisfaction — they can't create it.
+
+---
+
 ## Referral vs. Affiliate
 
 ### Customer Referral Programs

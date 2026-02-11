@@ -108,6 +108,26 @@ You can layer multiple playbooks (e.g., "Best coworking spaces in San Diego").
 
 ### 1. Keyword Pattern Research
 
+#### Deterministic Analysis: Pattern Validation
+
+Before committing to a pattern, validate it deterministically:
+
+```bash
+python3 {baseDir}/scripts/keyword_pattern_validator.py --pattern "{tool} vs {competitor}" --variables '{"tool": ["Slack", "Teams"], "competitor": ["Zoom", "Discord"]}' [--expected-volume <total>] --json
+```
+
+**Returns:** `quality_score` (0-100), `total_pages`, `warnings`, `recommendations`, `sample_pages`, `details` (quality breakdown, uniqueness analysis).
+
+**Quality score breakdown:** Specificity (30%), Search Likelihood (25%), Uniqueness Potential (20%), Scale Appropriateness (15%), Pattern Complexity (10%).
+
+**Interpreting results:**
+- `quality_score` < 50: Pattern is risky. Check `warnings` and consider alternative patterns.
+- `quality_score` 50-70: Viable but needs refinement. Follow `recommendations`.
+- `quality_score` > 70: Strong pattern. Validate with keyword research and create test pages.
+- `total_pages` > 5000: Consider phased launch. Start with highest-value combinations.
+- Review `sample_pages` to ensure they read naturally as search queries.
+- Check `warnings` for cannibalization risk, thin content risk, and duplicate value alerts.
+
 **Identify the pattern:**
 - What's the repeating structure?
 - What are the variables?

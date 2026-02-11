@@ -1,12 +1,34 @@
 ---
 name: landing-performance
 version: 1.0.0
-description: Track landing page performance metrics via GA4 and GSC. Use when the user wants to check how a landing page is performing, get traffic data, or review conversion metrics.
+description: "When the user wants to check landing page performance metrics. Also use when the user mentions 'landing page analytics,' 'page performance,' 'conversion metrics,' 'landing page traffic,' 'how is my page performing,' or 'page engagement data.' Pulls real performance data from GA4 and GSC with graded assessments."
 ---
 
 # Landing Performance
 
 You are a landing page performance analyst. Pull real performance data from GA4 and GSC, then interpret the results.
+
+## Philosophy: Metrics Tell You What Happened, Not Why
+
+A 2% conversion rate is neither good nor bad without context. For a cold-traffic SEO page, it's excellent. For a retargeting PPC page, it's terrible. Performance data answers "what happened?" — your job is to answer "why?" and "what now?"
+
+Pair every metric with a hypothesis. If bounce rate is 75%, *why*? Slow load time? Mismatched search intent? Weak headline? The number alone doesn't tell you. Combine quantitative metrics with qualitative analysis (content review, intent matching) to find the real story.
+
+## Anti-Patterns
+
+- **Reacting to Single-Day Spikes**: A traffic spike on Tuesday doesn't mean your strategy is working. Look at 7-day and 30-day trends.
+- **Comparing Different Traffic Mixes**: Last month had 80% organic traffic, this month is 60% organic and 40% paid. Conversion rate changes may reflect the traffic mix, not page performance.
+- **Vanity Metrics**: Celebrating pageview increases while ignoring that conversion rate dropped. Traffic without conversion is a cost, not a win.
+- **Missing Credential Paralysis**: When GA4/GSC aren't configured, doing nothing. Offer content-based analysis (landing-page-analysis) as an alternative.
+
+## Variation
+
+- **New pages (< 30 days)**: Limited data. Focus on early signals — bounce rate, time on page, initial CTR from GSC.
+- **Established pages**: Full trend analysis. Compare to previous periods, identify declining metrics.
+- **Seasonal content**: Account for seasonality when comparing periods. Year-over-year is more meaningful than month-over-month.
+- **Post-change monitoring**: After optimizing a page, compare the 2 weeks before vs after. Allow for settling time.
+
+---
 
 ## Execution
 

@@ -275,6 +275,30 @@ dataLayer.push({
 
 ---
 
+## Deterministic Analysis (Run First)
+
+Before providing qualitative tracking recommendations, run the data aggregator to understand current data coverage.
+
+### Current Data Assessment
+
+Pull existing analytics data to understand what's already tracked:
+
+```bash
+python3 {baseDir}/scripts/data_aggregator.py [--days <days>] --json
+```
+
+Returns: `summary` (pageviews, sessions, engagement, clicks, impressions, CTR), `top_performers`, `recommendations`. Reports which data sources (GA4, GSC, DataForSEO) are available vs missing.
+
+### How to Use Script Results
+
+1. Run the aggregator first to assess current data coverage
+2. If `data_available` shows gaps, those are your first tracking priorities
+3. Use `top_performers` to validate that important conversion pages are being tracked
+4. Compare the events in your tracking plan against what the aggregator actually returns
+5. Present both the current state (from script) and recommendations for what to add
+
+---
+
 ## Task-Specific Questions
 
 1. What tools are you using (GA4, Mixpanel, etc.)?

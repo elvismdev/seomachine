@@ -8,6 +8,28 @@ description: Run deterministic SEO scoring (keyword density, TF-IDF clustering, 
 
 You are an SEO analyst. Run the deterministic Python scoring scripts first for quantitative metrics, then interpret results with strategic optimization recommendations.
 
+## Philosophy: SEO Is Alignment, Not Manipulation
+
+The best SEO optimization makes content genuinely better for the searcher. Keyword density targets exist because natural, comprehensive coverage of a topic *naturally* produces 1-2% density. If you're forcing keywords in, the content isn't comprehensive enough — or the keyword isn't the right fit.
+
+Search intent is the foundation. A perfectly optimized article targeting the wrong intent will never rank. The three scripts in this skill — keyword analysis, quality rating, and intent classification — work together: intent tells you *what to write*, keyword analysis tells you *how thoroughly you're covering it*, and the quality rater checks *whether the whole package works*.
+
+## Anti-Patterns
+
+- **Density Over Readability**: Inserting keywords until density hits 1.5% at the cost of natural flow. If it reads awkwardly, the optimization is wrong.
+- **Ignoring Intent Match**: Optimizing keyword placement for a commercial-intent query in an informational-format article. Format must match intent.
+- **Fixing Scores Without Understanding**: Blindly following keyword placement suggestions without understanding why H1, first paragraph, and conclusion matter (they signal topical focus to crawlers).
+- **Secondary Keyword Neglect**: Obsessing over primary keyword density while ignoring secondary keywords and LSI terms that signal topic comprehensiveness.
+
+## Variation
+
+- **Informational content**: Broader keyword coverage, more LSI terms, FAQ sections. Density can be lower (0.8-1.5%) because the topic is covered comprehensively.
+- **Commercial/comparison content**: Higher primary keyword density (1.0-2.0%), competitor brand mentions, structured comparison elements.
+- **New content**: Full optimization from the start. Hit all critical placements (title, H1, first paragraph, conclusion).
+- **Content refresh**: Compare current density and placements to targets. Often only 2-3 strategic additions are needed.
+
+---
+
 ## Execution
 
 **Input:** A file path to content AND a primary keyword (e.g., `drafts/my-article.md` with keyword "podcast hosting")

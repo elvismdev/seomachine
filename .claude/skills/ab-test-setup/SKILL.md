@@ -75,6 +75,32 @@ We'll know this is true when [metrics].
 
 ---
 
+## Deterministic Analysis (Run First)
+
+Before designing a test plan, calculate the required sample size deterministically:
+
+```bash
+python3 {baseDir}/scripts/sample_size_calculator.py --baseline <rate> --mde <effect> [--traffic <daily>] [--variants <n>] --json
+```
+
+**Parameters:**
+- `--baseline`: Current conversion rate (e.g., 0.03 for 3%)
+- `--mde`: Minimum detectable effect as relative change (e.g., 0.10 for 10% lift)
+- `--traffic`: Daily traffic for duration estimation
+- `--variants`: Number of variants including control (default: 2)
+- `--confidence`: Statistical confidence (default: 0.95)
+- `--power`: Statistical power (default: 0.80)
+
+**Returns:** `sample_per_variant`, `total_sample_needed`, `duration_days`, `parameters` (alpha, z-scores), `recommendations`.
+
+**Interpreting results:**
+- If `duration_days` > 90: the test is impractical at current traffic. Increase MDE or focus on higher-traffic pages.
+- If `duration_days` < 7: results will be unreliable. Consider a smaller MDE or run for at least 14 days regardless.
+- If `sample_per_variant` < 100: results will be very noisy even if statistically significant.
+- Use the `recommendations` array to guide test design decisions.
+
+---
+
 ## Sample Size
 
 ### Quick Reference

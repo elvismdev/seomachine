@@ -418,6 +418,35 @@ This iterative process ensures each edit doesn't create new problems while respe
 
 ---
 
+## Deterministic Analysis (Run First)
+
+Before starting the Seven Sweeps, run quantitative analysis to identify the biggest issues objectively.
+
+### Readability Score
+
+```bash
+python3 {baseDir}/scripts/readability_scorer.py <file_path> --json
+```
+
+Returns: `overall_score`, `readability_metrics` (Flesch, grade level), `complexity_analysis` (passive voice, complex words), `recommendations`.
+
+### Content Quality Score
+
+```bash
+python3 {baseDir}/scripts/content_scorer.py <file_path> --json
+```
+
+Returns: `composite_score`, `dimension_scores` (humanity, specificity, structure_balance, seo, readability), `issues`.
+
+**How to use the output:**
+1. Run both scripts first to get objective baselines
+2. Use `complexity_analysis` to guide Sweep 1 (Clarity) — focus on passive voice and complex words
+3. Use `dimension_scores` to decide which sweeps need the most attention
+4. Use readability grade to calibrate language level (target grade 8-10)
+5. After all sweeps, re-run to verify improvement
+
+---
+
 ## Task-Specific Questions
 
 1. What's the goal of this copy? (Awareness, conversion, retention)

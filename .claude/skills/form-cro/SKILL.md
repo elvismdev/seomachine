@@ -409,6 +409,30 @@ Ideas to A/B test with expected outcomes
 
 ---
 
+## Deterministic Analysis (Run First)
+
+Before providing qualitative form optimization recommendations, run CTA analysis when form files are available.
+
+### CTA Analysis
+
+Run the CTA analyzer to evaluate call-to-action effectiveness within the form context:
+
+```bash
+python3 {baseDir}/scripts/cta_analyzer.py <file_path> --goal <trial|demo|lead> --json
+```
+
+Returns: `summary` (total_ctas, average_quality_score, distribution_score, goal_alignment_score, overall_effectiveness), `ctas` (with positions and scores), `recommendations`.
+
+### How to Use Script Results
+
+1. Run the CTA analyzer first to get objective data on button copy and placement
+2. Use `goal_alignment_score` to verify form CTAs match the conversion goal
+3. Use `average_quality_score` to identify weak button copy (e.g., "Submit" vs "Get My Quote")
+4. Combine CTA findings with the qualitative field-by-field optimization above
+5. Present both quantitative CTA scores and qualitative form design recommendations
+
+---
+
 ## Task-Specific Questions
 
 1. What's your current form completion rate?

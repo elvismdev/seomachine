@@ -86,6 +86,25 @@ Consider:
 - B2C: Test weekends
 - Time zones: Send at local time
 
+### Deterministic Analysis: Subject Line Scoring
+
+Before finalizing subject lines, score them deterministically:
+
+```bash
+python3 {baseDir}/scripts/subject_line_scorer.py "<subject line>" --json
+```
+
+**Returns:** `overall_score` (0-100), `length_score`, `power_word_score`, `clarity_score`, `personalization_score`, `spam_risk_score`, `suggestions`, `alternatives`.
+
+**Score weights:** Length (25%), Clarity (25%), Power Words (20%), Personalization (15%), Spam Risk (15%).
+
+**Interpreting results:**
+- `overall_score` < 50: Subject line needs significant rework. Check `suggestions` for specific fixes.
+- `overall_score` 50-70: Acceptable but has room for improvement. Use `alternatives` as inspiration.
+- `overall_score` > 70: Strong subject line. Test against variations for optimization.
+- `spam_risk_score` < 60: High spam filter risk. Remove flagged triggers immediately.
+- Use the generated `alternatives` as A/B test variants.
+
 ### Subject Line Strategy
 - Clear > Clever
 - Specific > Vague
