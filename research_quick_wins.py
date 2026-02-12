@@ -137,7 +137,7 @@ def main():
                         kw['serp_features'] = serp_features
                         if serp_features:
                             print(f"  SERP Features: {', '.join(serp_features[:3])}")
-                except:
+                except Exception:
                     pass
             except Exception as e:
                 print(f"  DataForSEO error: {e}")

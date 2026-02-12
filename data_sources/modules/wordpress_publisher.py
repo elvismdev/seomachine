@@ -8,8 +8,16 @@ Supports Yoast SEO meta fields (title, description, focus keyphrase).
 import os
 import re
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from typing import Dict, Optional, List, Tuple
 from pathlib import Path
+
+# Default timeout: (connect_seconds, read_seconds)
+DEFAULT_TIMEOUT = (10, 30)
+
+# Maximum pages to fetch during pagination (safety guard)
+MAX_PAGINATION_PAGES = 50
 
 
 class WordPressPublisher:
@@ -45,6 +53,16 @@ class WordPressPublisher:
             'Content-Type': 'application/json',
             'User-Agent': 'SEOMachine/1.0 (WordPress Content Publisher)'
         })
+
+        # Retry on transient failures and rate limits
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504],
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        self.session.mount("https://", adapter)
+        self.session.mount("http://", adapter)
 
         # Cache for categories and tags
         self._categories_cache: Optional[Dict[str, int]] = None
@@ -187,10 +205,11 @@ class WordPressPublisher:
 
         categories = {}
         page = 1
-        while True:
+        while page <= MAX_PAGINATION_PAGES:
             response = self.session.get(
                 f"{self.api_base}/categories",
-                params={'per_page': 100, 'page': page}
+                params={'per_page': 100, 'page': page},
+                timeout=DEFAULT_TIMEOUT
             )
             response.raise_for_status()
             items = response.json()
@@ -210,10 +229,11 @@ class WordPressPublisher:
 
         tags = {}
         page = 1
-        while True:
+        while page <= MAX_PAGINATION_PAGES:
             response = self.session.get(
                 f"{self.api_base}/tags",
-                params={'per_page': 100, 'page': page}
+                params={'per_page': 100, 'page': page},
+                timeout=DEFAULT_TIMEOUT
             )
             response.raise_for_status()
             items = response.json()
@@ -237,7 +257,8 @@ class WordPressPublisher:
         # Create new category
         response = self.session.post(
             f"{self.api_base}/categories",
-            json={'name': name.strip()}
+            json={'name': name.strip()},
+            timeout=DEFAULT_TIMEOUT
         )
         response.raise_for_status()
         new_cat = response.json()
@@ -255,7 +276,8 @@ class WordPressPublisher:
         # Create new tag
         response = self.session.post(
             f"{self.api_base}/tags",
-            json={'name': name.strip()}
+            json={'name': name.strip()},
+            timeout=DEFAULT_TIMEOUT
         )
         response.raise_for_status()
         new_tag = response.json()
@@ -304,7 +326,8 @@ class WordPressPublisher:
 
         response = self.session.post(
             f"{self.api_base}/{post_type}",
-            json=post_data
+            json=post_data,
+            timeout=DEFAULT_TIMEOUT
         )
         response.raise_for_status()
         return response.json()
@@ -344,7 +367,8 @@ class WordPressPublisher:
 
         response = self.session.post(
             f"{self.api_base}/{post_type}/{post_id}",
-            json=yoast_data
+            json=yoast_data,
+            timeout=DEFAULT_TIMEOUT
         )
         response.raise_for_status()
         return response.json()

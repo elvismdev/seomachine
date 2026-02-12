@@ -164,7 +164,7 @@ def main():
                 if serp_data and 'features' in serp_data:
                     serp_features = serp_data.get('features', [])
                     gap['serp_features'] = serp_features
-            except:
+            except Exception:
                 pass
 
             # Analyze search intent

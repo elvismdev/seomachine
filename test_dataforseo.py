@@ -27,8 +27,8 @@ def test_connection():
     password = os.getenv('DATAFORSEO_PASSWORD')
 
     print(f"\nCredentials loaded:")
-    print(f"  Login: {login}")
-    print(f"  Password: {'*' * len(password) if password else 'NOT SET'}")
+    print(f"  Login: {'***' + login[-4:] if login and len(login) > 4 else 'SET' if login else 'NOT SET'}")
+    print(f"  Password: {'*' * 8 if password else 'NOT SET'}")
 
     if not login or not password:
         print("\n❌ ERROR: Missing credentials in .env file")

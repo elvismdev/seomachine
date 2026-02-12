@@ -111,7 +111,7 @@ def main():
                 # Get related keywords we might be missing
                 seed_keyword = keywords_in_cluster[0]['keyword']
                 coverage_gaps = find_cluster_gaps(seed_keyword, keywords_in_cluster, dfs)
-            except:
+            except Exception:
                 pass
 
         cluster_analysis.append({

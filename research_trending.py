@@ -93,7 +93,7 @@ def main():
                     search_volume = keyword_data[0].get('search_volume')
                     difficulty = keyword_data[0].get('difficulty')
                     cpc = keyword_data[0].get('cpc')
-            except:
+            except Exception:
                 pass
 
         # Analyze intent
@@ -103,7 +103,7 @@ def main():
             if hasattr(primary_intent, 'value'):
                 primary_intent = primary_intent.value
             search_intent = str(primary_intent)
-        except:
+        except Exception:
             search_intent = 'unknown'
 
         # Calculate opportunity score

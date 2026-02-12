@@ -7,8 +7,14 @@ Fetches SERP data, competitor rankings, keyword research, and more.
 import os
 import base64
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from typing import Dict, List, Optional, Any
 from datetime import datetime
+
+# Default timeout: (connect_seconds, read_seconds)
+DEFAULT_TIMEOUT = (10, 60)
+
 
 class DataForSEO:
     """DataForSEO API client"""
@@ -39,10 +45,20 @@ class DataForSEO:
         self.session = requests.Session()
         self.session.headers.update(self.headers)
 
+        # Retry on transient failures and rate limits
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504],
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        self.session.mount("https://", adapter)
+        self.session.mount("http://", adapter)
+
     def _post(self, endpoint: str, data: List[Dict]) -> Dict:
         """Make POST request to DataForSEO API"""
         url = f"{self.base_url}{endpoint}"
-        response = self.session.post(url, json=data)
+        response = self.session.post(url, json=data, timeout=DEFAULT_TIMEOUT)
         response.raise_for_status()
         return response.json()
 
@@ -408,7 +424,7 @@ class DataForSEO:
                 task = response['tasks'][0]
                 if task['status_code'] == 20000:
                     return task['result'][0].get('items', [])
-        except:
+        except (requests.RequestException, KeyError, IndexError):
             pass
 
         return []
