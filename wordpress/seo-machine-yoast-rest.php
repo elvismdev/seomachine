@@ -49,16 +49,21 @@ add_action('init', function() {
         ],
     ];
 
-    foreach ($yoast_meta_fields as $meta_key => $args) {
-        register_post_meta('post', $meta_key, [
-            'show_in_rest' => true,
-            'single' => $args['single'],
-            'type' => 'string',
-            'description' => $args['description'],
-            'auth_callback' => function() {
-                return current_user_can('edit_posts');
-            },
-        ]);
+    // Register for all public post types (posts, pages, custom types)
+    $post_types = get_post_types(['public' => true], 'names');
+
+    foreach ($post_types as $post_type) {
+        foreach ($yoast_meta_fields as $meta_key => $args) {
+            register_post_meta($post_type, $meta_key, [
+                'show_in_rest' => true,
+                'single' => $args['single'],
+                'type' => 'string',
+                'description' => $args['description'],
+                'auth_callback' => function() {
+                    return current_user_can('edit_posts');
+                },
+            ]);
+        }
     }
 });
 
@@ -72,39 +77,43 @@ add_action('rest_api_init', function() {
         return;
     }
 
-    // Register a custom field group for Yoast SEO
-    register_rest_field('post', 'yoast_seo', [
-        'get_callback' => function($post) {
-            return [
-                'focus_keyphrase' => get_post_meta($post['id'], '_yoast_wpseo_focuskw', true),
-                'seo_title' => get_post_meta($post['id'], '_yoast_wpseo_title', true),
-                'meta_description' => get_post_meta($post['id'], '_yoast_wpseo_metadesc', true),
-            ];
-        },
-        'update_callback' => function($value, $post) {
-            if (!current_user_can('edit_post', $post->ID)) {
-                return new WP_Error('rest_forbidden', 'You do not have permission to edit this post.', ['status' => 403]);
-            }
+    // Register a custom field group for Yoast SEO on all public post types
+    $post_types = get_post_types(['public' => true], 'names');
 
-            if (isset($value['focus_keyphrase'])) {
-                update_post_meta($post->ID, '_yoast_wpseo_focuskw', sanitize_text_field($value['focus_keyphrase']));
-            }
-            if (isset($value['seo_title'])) {
-                update_post_meta($post->ID, '_yoast_wpseo_title', sanitize_text_field($value['seo_title']));
-            }
-            if (isset($value['meta_description'])) {
-                update_post_meta($post->ID, '_yoast_wpseo_metadesc', sanitize_text_field($value['meta_description']));
-            }
+    foreach ($post_types as $post_type) {
+        register_rest_field($post_type, 'yoast_seo', [
+            'get_callback' => function($post) {
+                return [
+                    'focus_keyphrase' => get_post_meta($post['id'], '_yoast_wpseo_focuskw', true),
+                    'seo_title' => get_post_meta($post['id'], '_yoast_wpseo_title', true),
+                    'meta_description' => get_post_meta($post['id'], '_yoast_wpseo_metadesc', true),
+                ];
+            },
+            'update_callback' => function($value, $post) {
+                if (!current_user_can('edit_post', $post->ID)) {
+                    return new WP_Error('rest_forbidden', 'You do not have permission to edit this post.', ['status' => 403]);
+                }
 
-            return true;
-        },
-        'schema' => [
-            'type' => 'object',
-            'properties' => [
-                'focus_keyphrase' => ['type' => 'string'],
-                'seo_title' => ['type' => 'string'],
-                'meta_description' => ['type' => 'string'],
+                if (isset($value['focus_keyphrase'])) {
+                    update_post_meta($post->ID, '_yoast_wpseo_focuskw', sanitize_text_field($value['focus_keyphrase']));
+                }
+                if (isset($value['seo_title'])) {
+                    update_post_meta($post->ID, '_yoast_wpseo_title', sanitize_text_field($value['seo_title']));
+                }
+                if (isset($value['meta_description'])) {
+                    update_post_meta($post->ID, '_yoast_wpseo_metadesc', sanitize_text_field($value['meta_description']));
+                }
+
+                return true;
+            },
+            'schema' => [
+                'type' => 'object',
+                'properties' => [
+                    'focus_keyphrase' => ['type' => 'string'],
+                    'seo_title' => ['type' => 'string'],
+                    'meta_description' => ['type' => 'string'],
+                ],
             ],
-        ],
-    ]);
+        ]);
+    }
 });
