@@ -7,7 +7,7 @@ A specialized Claude Code workspace for creating long-form, SEO-optimized blog c
 SEO Machine is built on Claude Code and provides:
 - **Custom Commands**: `/research`, `/write`, `/rewrite`, `/analyze-existing`, `/optimize`, `/performance-review`, `/publish-draft`, `/article`, `/priorities`, plus specialized research and landing page commands
 - **Specialized Agents**: Content analyzer, SEO optimization, meta element creation, internal linking, keyword mapping, editor, performance analysis, headline generator, CRO analyst, landing page optimizer
-- **Marketing Skills**: 26 marketing skills for copywriting, CRO, A/B testing, email sequences, pricing strategy, and more
+- **Skills Library**: 36 skills across orchestration and marketing categories — deterministic Python analysis, copywriting, CRO, A/B testing, email sequences, pricing strategy, and more
 - **Advanced SEO Analysis**: Search intent detection, keyword density & clustering, content length comparison, readability scoring, SEO quality rating (0-100)
 - **Data Integrations**: Google Analytics 4, Google Search Console, DataForSEO for real-time performance insights
 - **Context-Driven**: Brand voice, style guide, SEO guidelines, and examples guide all content
@@ -41,7 +41,7 @@ This installs:
 
 3. Open in Claude Code:
 ```bash
-claude-code .
+claude
 ```
 
 4. **Customize Context Files** (Important!):
@@ -99,12 +99,19 @@ claude-code .
 /write content marketing strategies for B2B SaaS
 ```
 
-**Agent Auto-Execution**:
-After writing, these agents automatically analyze the content:
-- **SEO Optimizer**: On-page SEO recommendations
-- **Meta Creator**: Multiple meta title/description options
-- **Internal Linker**: Specific internal linking suggestions
-- **Keyword Mapper**: Keyword placement and density analysis
+**Quality Gate Pipeline**:
+After writing, this pipeline runs automatically:
+1. Save draft to `drafts/`
+2. `/scrub` removes AI watermarks (invisible Unicode, em-dashes)
+3. `content_scorer.py` evaluates quality (composite score, threshold = 70)
+4. If score < 70: auto-revise top fixes and re-score (max 2 iterations)
+5. If still < 70 after 2 iterations: route to `review-required/` with `_REVIEW_NOTES.md`
+6. If score >= 70: run 5 optimization agents:
+   - **Content Analyzer**: Data-driven analysis using 5 Python modules
+   - **SEO Optimizer**: On-page SEO recommendations
+   - **Meta Creator**: Multiple meta title/description options
+   - **Internal Linker**: Specific internal linking suggestions
+   - **Keyword Mapper**: Keyword placement and density analysis
 
 #### 3. Final Optimization
 ```
@@ -193,7 +200,8 @@ Create long-form SEO-optimized article (2000-3000+ words).
 - Meta elements (title, description, keywords)
 - SEO checklist
 
-**Auto-Triggers**:
+**Auto-Triggers** (after quality gate passes):
+- Content Analyzer agent
 - SEO Optimizer agent
 - Meta Creator agent
 - Internal Linker agent
@@ -289,7 +297,7 @@ Remove AI watermarks and patterns from content (em-dashes, filler phrases, robot
 
 Specialized agents that automatically analyze content and provide expert recommendations.
 
-### Content Analyzer (NEW!)
+### Content Analyzer
 **Purpose**: Comprehensive, data-driven content analysis using 5 specialized modules
 
 **Analyzes**:
@@ -451,19 +459,53 @@ Specialized agents that automatically analyze content and provide expert recomme
 - A/B testing recommendations
 - Priority action list
 
-## Marketing Skills
+## Skills Library
 
-SEO Machine includes 26 marketing skills accessible as slash commands:
+SEO Machine includes 36 skills accessible as slash commands, organized in two tiers:
+
+### Orchestration Skills (10)
+
+These skills run deterministic Python analysis first, then use LLM reasoning to interpret results:
+
+| Skill | Scripts | Purpose |
+|-------|---------|---------|
+| `/content-quality-analysis` | content_scorer, readability_scorer, engagement_analyzer, seo_quality_rater | Composite quality scoring |
+| `/seo-analysis` | keyword_analyzer, seo_quality_rater, search_intent_analyzer | Keyword density, TF-IDF, intent |
+| `/content-scrubbing` | content_scrubber | AI watermark removal |
+| `/landing-page-analysis` | landing_page_scorer, above_fold_analyzer, cta_analyzer, trust_signal_analyzer, cro_checker | Full CRO audit |
+| `/landing-performance` | landing_performance | GA4/GSC performance tracking |
+| `/data-pipeline` | google_analytics, google_search_console, dataforseo, data_aggregator | Traffic and search data |
+| `/opportunity-scoring` | opportunity_scorer, competitor_gap_analyzer | Keyword prioritization + gap analysis |
+| `/content-comparison` | content_length_comparator | SERP word count benchmarking |
+| `/article-planning` | article_planner, section_writer | Article structure generation |
+| `/wordpress-publishing` | wordpress_publisher | WordPress REST API publishing |
+
+### Marketing Skills (26)
 
 | Category | Skills |
 |----------|--------|
 | **Copywriting** | `/copywriting`, `/copy-editing` |
 | **CRO** | `/page-cro`, `/form-cro`, `/signup-flow-cro`, `/onboarding-cro`, `/popup-cro`, `/paywall-upgrade-cro` |
-| **Strategy** | `/content-strategy`, `/pricing-strategy`, `/launch-strategy`, `/marketing-ideas` |
+| **Strategy** | `/content-strategy`, `/pricing-strategy`, `/launch-strategy`, `/marketing-ideas`, `/growth-lead`, `/product-marketing-context` |
 | **Channels** | `/email-sequence`, `/social-content`, `/paid-ads` |
 | **SEO** | `/seo-audit`, `/schema-markup`, `/programmatic-seo`, `/competitor-alternatives` |
 | **Analytics** | `/analytics-tracking`, `/ab-test-setup` |
 | **Other** | `/referral-program`, `/free-tool-strategy`, `/marketing-psychology` |
+
+### Skill Architecture
+
+Skills use a `scripts/` directory with symlinks to `data_sources/modules/`, ensuring zero module duplication:
+
+```
+.claude/skills/[skill-name]/
+  SKILL.md              # YAML frontmatter + execution instructions
+  scripts/
+    module.py -> ../../../../data_sources/modules/module.py  (symlink)
+  references/
+    reference-doc.md    # Scoring criteria, benchmarks, etc.
+```
+
+22 of the 36 skills have script integrations (41 symlinks total). Each skill includes philosophy, anti-patterns, and variation guidance in its `SKILL.md`.
 
 ## Data Sources
 
@@ -489,7 +531,7 @@ SEO Machine integrates with real-time data sources to inform content strategy:
 - Keyword metrics
 - Competitor gap analysis
 
-### Advanced SEO Analysis Modules (NEW!)
+### Advanced SEO Analysis Modules
 
 SEO Machine includes 5 specialized Python modules for comprehensive content analysis:
 
@@ -540,6 +582,7 @@ Six Python modules for landing page conversion optimization:
 
 ### Additional Analysis Modules
 
+- `content_scrubber.py` - AI watermark removal (12 Unicode chars + dash normalization)
 - `opportunity_scorer.py` - 8-factor opportunity scoring for content prioritization
 - `content_scorer.py` - 5-dimension content quality scoring (humanity, specificity, structure, SEO, readability)
 - `engagement_analyzer.py` - Content engagement pattern analysis
@@ -547,6 +590,9 @@ Six Python modules for landing page conversion optimization:
 - `article_planner.py` - Data-driven article planning
 - `section_writer.py` - Section-level content guidance
 - `social_research_aggregator.py` - Social media research aggregation
+- `sample_size_calculator.py` - A/B test sample size and duration calculation
+- `subject_line_scorer.py` - Email subject line scoring (5 dimensions)
+- `keyword_pattern_validator.py` - Programmatic SEO pattern validation
 
 ### Python Research Scripts
 
@@ -582,9 +628,9 @@ Publishing uses the WordPress REST API with a custom MU-plugin that exposes Yoas
 2. Add `wordpress/functions-snippet.php` to your theme's functions.php
 3. Configure WordPress credentials in `.env`:
    ```
-   WP_URL=https://yoursite.com
-   WP_USERNAME=your_username
-   WP_APP_PASSWORD=your_application_password
+   WORDPRESS_URL=https://yoursite.com
+   WORDPRESS_USERNAME=your_username
+   WORDPRESS_APP_PASSWORD=your_application_password
    ```
 
 See `wordpress/README.md` for detailed setup instructions.
@@ -628,7 +674,7 @@ seomachine/
 │   │   ├── headline-generator.md
 │   │   ├── cro-analyst.md
 │   │   └── landing-page-optimizer.md
-│   └── skills/            # 26 marketing skills
+│   └── skills/            # 36 skills (orchestration + marketing)
 ├── data_sources/          # Analytics integrations
 │   ├── modules/          # Python analysis modules
 │   │   ├── google_analytics.py
@@ -642,6 +688,7 @@ seomachine/
 │   │   ├── readability_scorer.py
 │   │   ├── opportunity_scorer.py
 │   │   ├── content_scorer.py
+│   │   ├── content_scrubber.py
 │   │   ├── engagement_analyzer.py
 │   │   ├── social_research_aggregator.py
 │   │   ├── competitor_gap_analyzer.py
@@ -653,7 +700,10 @@ seomachine/
 │   │   ├── cta_analyzer.py
 │   │   ├── landing_page_scorer.py
 │   │   ├── landing_performance.py
-│   │   └── trust_signal_analyzer.py
+│   │   ├── trust_signal_analyzer.py
+│   │   ├── sample_size_calculator.py
+│   │   ├── subject_line_scorer.py
+│   │   └── keyword_pattern_validator.py
 │   ├── config/           # API credentials (not in git)
 │   ├── utils/            # Helper functions
 │   ├── cache/            # Cached API responses
@@ -681,6 +731,8 @@ seomachine/
 ├── rewrites/              # Updated existing content
 ├── landing-pages/         # Landing page content
 ├── audits/                # Audit reports
+├── tests/                 # Integration and E2E tests
+├── docs/                  # Project documentation
 └── README.md              # This file
 ```
 
@@ -983,6 +1035,15 @@ Every article must meet these requirements:
 - **Solution**: Update `competitor-analysis.md` with differentiation opportunities
 - **Solution**: Add your unique advantages to `brand-voice.md` and `features.md`
 - **Solution**: Reference specific differentiation angles in `/research` command
+
+## Testing
+
+```bash
+python3 -m pytest tests/
+```
+
+- `tests/test_skill_integration.py` — 102 integration tests across 8 categories (skill structure, symlinks, frontmatter, scripts, references)
+- `tests/e2e_checklist.py` — 129 Layer 1 checks + interactive E2E checklist
 
 ## Support & Contributions
 

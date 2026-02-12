@@ -74,7 +74,7 @@ Located in `data_sources/modules/`. The Content Analyzer agent chains these modu
 4. `readability_scorer.py` - Flesch Reading Ease, grade level, passive voice, sentence complexity
 5. `seo_quality_rater.py` - Comprehensive 0-100 SEO score with category breakdowns
 
-Additional modules: `content_scorer.py` (quality gate), `content_scrubber.py` (AI watermark removal), `opportunity_scorer.py` (8-factor prioritization), `engagement_analyzer.py`, `competitor_gap_analyzer.py`, `article_planner.py`, `section_writer.py`, `social_research_aggregator.py`.
+Additional modules: `content_scorer.py` (quality gate), `content_scrubber.py` (AI watermark removal), `opportunity_scorer.py` (8-factor prioritization), `engagement_analyzer.py`, `competitor_gap_analyzer.py`, `article_planner.py`, `section_writer.py`, `social_research_aggregator.py`, `sample_size_calculator.py` (A/B test sample size), `subject_line_scorer.py` (email subject scoring), `keyword_pattern_validator.py` (programmatic SEO validation).
 
 ### CRO Analysis Modules
 
@@ -96,7 +96,7 @@ Six modules for landing page conversion optimization:
 
 ### Orchestration Skills (Deterministic-First)
 
-15 skills in `.claude/skills/` that wrap Python modules via symlinks in `scripts/` directories. These run deterministic Python analysis first, then use LLM reasoning to interpret results:
+22 skills in `.claude/skills/` that wrap Python modules via symlinks in `scripts/` directories. These run deterministic Python analysis first, then use LLM reasoning to interpret results:
 
 | Skill | Scripts | Purpose |
 |-------|---------|---------|
@@ -115,12 +115,19 @@ Six modules for landing page conversion optimization:
 | `copywriting` | content_scorer | Copy quality with deterministic scoring |
 | `analytics-tracking` | data_aggregator | Analytics with aggregated data |
 | `form-cro` | cta_analyzer | Form CRO with CTA analysis |
+| `ab-test-setup` | sample_size_calculator | A/B test sample size and duration |
+| `competitor-alternatives` | competitor_gap_analyzer | Competitor comparison pages |
+| `content-strategy` | competitor_gap_analyzer, opportunity_scorer | Content strategy with gap + opportunity data |
+| `copy-editing` | content_scorer, readability_scorer | Copy editing with quality scoring |
+| `email-sequence` | subject_line_scorer | Email sequences with subject line scoring |
+| `popup-cro` | cta_analyzer | Popup CRO with CTA analysis |
+| `programmatic-seo` | keyword_pattern_validator | Programmatic SEO pattern validation |
 
 All scripts accept `--json` flags for machine-readable output. Skills use `{baseDir}/scripts/` to reference scripts portably.
 
 ### Marketing Skills Library
 
-36 marketing skills in `.claude/skills/`, each with a `SKILL.md` and optional `references/` and `scripts/` directories. Categories: Copywriting, CRO (page/form/signup/onboarding/popup/paywall), Strategy, Channels (email/social/paid-ads), SEO, Analytics. Invoked as slash commands (e.g., `/copywriting`, `/page-cro`, `/seo-audit`). Five marketing skills (`seo-audit`, `page-cro`, `copywriting`, `analytics-tracking`, `form-cro`) have been enhanced with `scripts/` directories containing symlinked Python modules.
+36 skills in `.claude/skills/` (10 orchestration + 26 marketing), each with a `SKILL.md` and optional `references/` and `scripts/` directories. Marketing categories: Copywriting, CRO (page/form/signup/onboarding/popup/paywall), Strategy, Channels (email/social/paid-ads), SEO, Analytics. Invoked as slash commands (e.g., `/copywriting`, `/page-cro`, `/seo-audit`). 22 of the 36 skills have `scripts/` directories with symlinked Python modules (41 symlinks total).
 
 ### Skill Architecture (Symlinks)
 

@@ -112,3 +112,8 @@ env/
 # GA4 Credentials (additional explicit entry)
 ga4-credentials.json
 google-analytics-credentials.json
+
+# OpenSpec (development-only, not part of tool functionality)
+openspec/
+.claude/skills/openspec-*/
+.claude/commands/opsx/
