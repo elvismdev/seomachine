@@ -63,6 +63,15 @@ published/*
 rewrites/*
 !rewrites/.gitkeep
 
+review-required/*
+!review-required/.gitkeep
+
+landing-pages/*
+!landing-pages/.gitkeep
+
+audits/*
+!audits/.gitkeep
+
 # Don't ignore context files - these should be committed after customization
 # !context/
 
@@ -84,6 +93,7 @@ build/
 .coverage
 htmlcov/
 .pytest_cache/
+tests/e2e_results.json
 
 # Secrets and sensitive data
 secrets/

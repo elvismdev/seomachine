@@ -1042,7 +1042,7 @@ Every article must meet these requirements:
 python3 -m pytest tests/
 ```
 
-- `tests/test_skill_integration.py` — 102 integration tests across 8 categories (skill structure, symlinks, frontmatter, scripts, references)
+- `tests/test_skill_integration.py` — 129 integration tests across 12 categories (symlinks, module CLI, import chains, content pipeline, scrubber, SKILL.md validation, commands, agents, context files, output dirs, config, dependencies)
 - `tests/e2e_checklist.py` — 129 Layer 1 checks + interactive E2E checklist
 
 ## Support & Contributions

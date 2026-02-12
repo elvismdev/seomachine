@@ -116,7 +116,7 @@ class CompetitorGapAnalyzer:
     ]
 
     # Year patterns for detecting outdated info
-    YEAR_PATTERN = r'\b(201[0-9]|202[0-3])\b'  # Pre-2024 years
+    YEAR_PATTERN = r'\b(201[0-9]|202[0-9])\b'  # Years 2010-2029, filtered dynamically
 
     # Minimum words for a section to be considered "substantial"
     MIN_SECTION_WORDS = 150
