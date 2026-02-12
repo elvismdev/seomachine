@@ -6,6 +6,7 @@ to determine optimal word count for ranking competitively.
 """
 
 import re
+import time
 import requests
 from typing import Dict, List, Optional, Any
 from bs4 import BeautifulSoup
@@ -52,6 +53,8 @@ class ContentLengthComparator:
             for i, result in enumerate(serp_results[:10]):  # Top 10 only
                 url = result.get('url')
                 if url:
+                    if i > 0:
+                        time.sleep(1)  # Rate limit between requests
                     word_count = self._fetch_word_count(url)
                     if word_count:
                         competitor_lengths.append({

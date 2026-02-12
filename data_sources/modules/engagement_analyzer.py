@@ -11,6 +11,7 @@ Analyzes articles for the 5 new engagement criteria:
 
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any
 
@@ -318,7 +319,7 @@ def format_results(results: List[Dict]) -> str:
     """Format analysis results as a table"""
     lines = []
     lines.append("=" * 90)
-    lines.append("ENGAGEMENT CRITERIA ANALYSIS - All Articles from 2025-12-10")
+    lines.append(f"ENGAGEMENT CRITERIA ANALYSIS - All Articles from {datetime.now().strftime('%Y-%m-%d')}")
     lines.append("=" * 90)
     lines.append("")
 
@@ -330,7 +331,7 @@ def format_results(results: List[Dict]) -> str:
     totals = {'hook': 0, 'rhythm': 0, 'ctas': 0, 'paragraphs': 0}
 
     for r in results:
-        name = r['filename'].replace('-2025-12-10.md', '')[:43]
+        name = re.sub(r'-\d{4}-\d{2}-\d{2}\.md$', '', r['filename'])[:43]
         hook = "✓" if r['scores']['hook'] else "✗"
         rhythm = "✓" if r['scores']['rhythm'] else "✗"
         ctas = "✓" if r['scores']['ctas'] else "✗"

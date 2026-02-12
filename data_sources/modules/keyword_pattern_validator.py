@@ -6,7 +6,7 @@ import argparse
 import json
 import re
 import sys
-from typing import Dict, Any, List, Set
+from typing import Dict, Any, List, Set, Tuple
 from itertools import product
 
 
@@ -139,7 +139,7 @@ class KeywordPatternValidator:
         pattern: str,
         variables: Dict[str, List[str]],
         total_pages: int
-    ) -> tuple[float, Dict[str, Any]]:
+    ) -> Tuple[float, Dict[str, Any]]:
         """Analyze pattern quality"""
         scores = []
         details = {}
@@ -433,7 +433,7 @@ class KeywordPatternValidator:
         self,
         pattern: str,
         variables: Dict[str, List[str]]
-    ) -> tuple[float, Dict[str, Any]]:
+    ) -> Tuple[float, Dict[str, Any]]:
         """Analyze how unique generated pages will be"""
         # Calculate entropy/diversity metrics
         var_counts = [len(values) for values in variables.values()]

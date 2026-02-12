@@ -394,6 +394,10 @@ class WordPressPublisher:
         # Use the mapping, or assume custom post types use plural form
         api_endpoint = type_endpoints.get(post_type.lower(), post_type.lower())
 
+        # Validate post type to prevent path traversal
+        if not re.match(r'^[a-z0-9_-]+$', api_endpoint):
+            raise ValueError(f"Invalid post type: {post_type!r}")
+
         # Parse the draft file
         draft = self.parse_draft_file(file_path)
 

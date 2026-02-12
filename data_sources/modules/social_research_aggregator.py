@@ -200,7 +200,7 @@ class SocialResearchAggregator:
             ],
             "youtube": [
                 f'site:youtube.com {topic} tutorial',
-                f'site:youtube.com {topic} review 2025',
+                f'site:youtube.com {topic} review {datetime.now().year}',
                 f'site:youtube.com {topic} tips',
                 f'site:youtube.com how to {topic}',
                 f'site:youtube.com {topic} guide',

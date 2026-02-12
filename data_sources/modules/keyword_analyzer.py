@@ -8,9 +8,6 @@ to identify keyword usage patterns and topic clusters within content.
 import re
 from typing import Dict, List, Tuple, Optional, Any
 from collections import Counter
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.cluster import KMeans
 
 
 class KeywordAnalyzer:
@@ -374,6 +371,9 @@ class KeywordAnalyzer:
     def _perform_clustering(self, content: str, sections: List[Dict]) -> Dict[str, Any]:
         """Perform topic clustering to identify content themes"""
         try:
+            from sklearn.feature_extraction.text import TfidfVectorizer
+            from sklearn.cluster import KMeans
+
             # Prepare section texts
             section_texts = []
             for section in sections:
