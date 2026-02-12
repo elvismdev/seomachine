@@ -381,8 +381,9 @@ if __name__ == "__main__":
     import sys
     import json
 
+    from pathlib import Path
     from dotenv import load_dotenv
-    load_dotenv('data_sources/config/.env')
+    load_dotenv(Path(__file__).resolve().parent.parent / 'config' / '.env')
 
     output_json = '--json' in sys.argv
     days = 30

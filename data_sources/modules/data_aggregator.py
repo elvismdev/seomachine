@@ -8,6 +8,7 @@ import os
 import sys
 from typing import Dict, List, Optional, Any
 from datetime import datetime
+from pathlib import Path
 from dotenv import load_dotenv
 
 try:
@@ -28,7 +29,9 @@ class DataAggregator:
 
     def __init__(self):
         """Initialize all data source clients"""
-        load_dotenv('data_sources/config/.env')
+        # Use path relative to this file so imports work from any directory
+        _env_path = Path(__file__).resolve().parent.parent / 'config' / '.env'
+        load_dotenv(_env_path)
 
         try:
             self.ga = GoogleAnalytics()

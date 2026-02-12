@@ -62,8 +62,20 @@ class LandingPagePerformance:
 
     def __init__(self):
         """Initialize performance tracker"""
-        self.ga4 = GoogleAnalytics() if GA4_AVAILABLE else None
-        self.gsc = GoogleSearchConsole() if GSC_AVAILABLE else None
+        self.ga4 = None
+        self.gsc = None
+
+        if GA4_AVAILABLE:
+            try:
+                self.ga4 = GoogleAnalytics()
+            except Exception:
+                pass
+
+        if GSC_AVAILABLE:
+            try:
+                self.gsc = GoogleSearchConsole()
+            except Exception:
+                pass
 
     def get_landing_page_performance(
         self,
@@ -127,20 +139,31 @@ class LandingPagePerformance:
             return {'error': 'GA4 not configured'}
 
         try:
-            # This would use the GA4 API to get page-specific metrics
-            # Placeholder implementation - adjust to your GA4 setup
+            trends = self.ga4.get_page_trends(url, days=days)
+            sources = self.ga4.get_traffic_sources(url=url, days=days)
+
+            # Build source breakdown
+            by_source = {}
+            source_mapping = {
+                'Organic Search': 'organic',
+                'Paid Search': 'paid',
+                'Direct': 'direct',
+                'Referral': 'referral',
+                'Organic Social': 'social',
+            }
+            for src in sources:
+                key = source_mapping.get(src['source'], src['source'].lower())
+                by_source[key] = src['sessions']
+
+            total_sessions = sum(t['sessions'] for t in trends.get('timeline', []))
+            total_pageviews = trends.get('total_pageviews', 0)
+
             return {
-                'page_views': 0,
-                'sessions': 0,
+                'page_views': total_pageviews,
+                'sessions': total_sessions,
                 'users': 0,
                 'new_users': 0,
-                'by_source': {
-                    'organic': 0,
-                    'paid': 0,
-                    'direct': 0,
-                    'referral': 0,
-                    'social': 0
-                }
+                'by_source': by_source
             }
         except Exception as e:
             return {'error': str(e)}
@@ -151,16 +174,24 @@ class LandingPagePerformance:
             return {'error': 'GA4 not configured'}
 
         try:
+            # Use get_top_pages with exact path filter to get engagement data
+            pages = self.ga4.get_top_pages(days=days, limit=1, path_filter=url)
+
+            if pages:
+                page = pages[0]
+                return {
+                    'bounce_rate': page.get('bounce_rate', 0.0),
+                    'avg_time_on_page': page.get('avg_session_duration', 0),
+                    'engagement_rate': page.get('engagement_rate', 0.0),
+                    'scroll_depth': {},
+                    'exit_rate': 0.0
+                }
+
             return {
                 'bounce_rate': 0.0,
                 'avg_time_on_page': 0,
                 'engagement_rate': 0.0,
-                'scroll_depth': {
-                    '25%': 0,
-                    '50%': 0,
-                    '75%': 0,
-                    '100%': 0
-                },
+                'scroll_depth': {},
                 'exit_rate': 0.0
             }
         except Exception as e:
@@ -179,15 +210,21 @@ class LandingPagePerformance:
         events = self.CONVERSION_EVENTS.get(goal, [])
 
         try:
+            conversions_data = self.ga4.get_conversions(days=days, path_filter=url)
+
+            total_conversions = 0
+            total_pageviews = 0
+            for row in conversions_data:
+                total_conversions += row.get('conversions', 0)
+                total_pageviews += row.get('pageviews', 0)
+
+            conv_rate = (total_conversions / total_pageviews * 100) if total_pageviews > 0 else 0.0
+
             return {
-                'total_conversions': 0,
-                'conversion_rate': 0.0,
+                'total_conversions': total_conversions,
+                'conversion_rate': round(conv_rate, 2),
                 'by_event': {event: 0 for event in events},
-                'by_source': {
-                    'organic': {'conversions': 0, 'rate': 0.0},
-                    'paid': {'conversions': 0, 'rate': 0.0},
-                    'direct': {'conversions': 0, 'rate': 0.0}
-                }
+                'by_source': {}
             }
         except Exception as e:
             return {'error': str(e)}
@@ -198,12 +235,17 @@ class LandingPagePerformance:
             return {'error': 'GSC not configured'}
 
         try:
+            page_perf = self.gsc.get_page_performance(url, days=days)
+
+            if 'error' in page_perf:
+                return page_perf
+
             return {
-                'impressions': 0,
-                'clicks': 0,
-                'ctr': 0.0,
-                'avg_position': 0.0,
-                'top_queries': []
+                'impressions': page_perf.get('impressions', 0),
+                'clicks': page_perf.get('clicks', 0),
+                'ctr': page_perf.get('ctr', 0.0),
+                'avg_position': page_perf.get('avg_position', 0.0),
+                'top_queries': page_perf.get('top_keywords', [])[:10]
             }
         except Exception as e:
             return {'error': str(e)}
@@ -388,18 +430,28 @@ class LandingPagePerformance:
             return {'error': 'GA4 not configured'}
 
         try:
+            sources = self.ga4.get_traffic_sources(url=url, days=days)
+            paid_sessions = 0
+            for src in sources:
+                if 'paid' in src.get('source', '').lower():
+                    paid_sessions += src['sessions']
+
+            pages = self.ga4.get_top_pages(days=days, limit=1, path_filter=url)
+            bounce_rate = pages[0].get('bounce_rate', 0.0) if pages else 0.0
+            avg_time = pages[0].get('avg_session_duration', 0) if pages else 0
+
             return {
                 'url': url,
                 'campaign': campaign,
                 'period_days': days,
                 'ppc_traffic': {
-                    'sessions': 0,
+                    'sessions': paid_sessions,
                     'users': 0,
                     'by_campaign': {}
                 },
                 'ppc_engagement': {
-                    'bounce_rate': 0.0,
-                    'avg_time_on_page': 0
+                    'bounce_rate': bounce_rate,
+                    'avg_time_on_page': avg_time
                 },
                 'ppc_conversions': {
                     'total': 0,

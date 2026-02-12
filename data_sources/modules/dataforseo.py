@@ -435,8 +435,9 @@ if __name__ == "__main__":
     import sys
     import json
 
+    from pathlib import Path
     from dotenv import load_dotenv
-    load_dotenv('data_sources/config/.env')
+    load_dotenv(Path(__file__).resolve().parent.parent / 'config' / '.env')
 
     if len(sys.argv) < 2:
         print("Usage: python dataforseo.py <keyword> [--domain <domain>] [--json]", file=sys.stderr)
