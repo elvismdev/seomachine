@@ -1,65 +1,53 @@
 # Data Sources
 
-This directory contains integrations for analytics and SEO data sources that power the Performance Agent and inform content strategy decisions.
+This directory contains Python modules for analytics, SEO analysis, content scoring, CRO auditing, and WordPress publishing. These modules power the orchestration skills and are invoked by commands and agents.
 
 ## Overview
 
-Data sources provide real-time performance metrics for:
-- **Content Performance**: Which articles drive traffic and conversions
-- **SEO Opportunities**: Keywords ranking 11-20 ready to push to page 1
-- **Content Gaps**: Topics competitors rank for but Castos doesn't
-- **Update Priority**: Articles declining in traffic or outdated
-
-## Supported Data Sources
-
-### Google Analytics 4 (GA4)
-- **Purpose**: Traffic, engagement, and conversion data
-- **Key Metrics**:
-  - Page views and sessions by article
-  - Average engagement time
-  - Bounce rate and scroll depth
-  - Conversion tracking (sign-ups, trials)
-  - Traffic sources (organic, direct, referral)
-
-### Google Search Console
-- **Purpose**: Search performance and keyword data
-- **Key Metrics**:
-  - Impressions and clicks by page
-  - Average position by keyword
-  - Click-through rate (CTR)
-  - Queries ranking 11-20 (quick win opportunities)
-  - Search appearance features
-
-### DataForSEO
-- **Purpose**: Competitive SEO data and keyword research
-- **Key Metrics**:
-  - Keyword rankings (daily updates)
-  - Competitor analysis
-  - SERP features and positions
-  - Search volume and difficulty
-  - Related keywords and questions
+- **27 Python modules** in `modules/` covering 6 categories
+- **3 data integrations**: Google Analytics 4, Google Search Console, DataForSEO
+- **All modules** support `--json` flag for machine-readable output
+- **Symlinked** into 22 skills via `scripts/` directories (41 symlinks total)
 
 ## Directory Structure
 
 ```
 data_sources/
-├── config/                 # API credentials and settings
+├── config/
 │   ├── .env.example       # Template for environment variables
-│   ├── ga4_config.json    # GA4 property settings
-│   ├── gsc_config.json    # Search Console property settings
-│   └── dataforseo_config.json  # DataForSEO settings
-├── modules/               # Integration modules
-│   ├── google_analytics.py
-│   ├── google_search_console.py
-│   ├── dataforseo.py
-│   └── data_aggregator.py
-├── utils/                 # Utility functions
-│   ├── auth.py           # Authentication helpers
-│   ├── cache.py          # Caching layer
-│   └── formatters.py     # Data formatting utilities
-├── cache/                 # Cached API responses
+│   └── .env               # Your credentials (gitignored)
+├── modules/               # 27 Python modules
+│   ├── google_analytics.py          # GA4 traffic and engagement
+│   ├── google_search_console.py     # Rankings, impressions, CTR
+│   ├── dataforseo.py                # SERP positions, keyword metrics
+│   ├── data_aggregator.py           # Combines GA4 + GSC + DataForSEO
+│   ├── wordpress_publisher.py       # REST API publishing with Yoast SEO
+│   ├── content_scorer.py            # Quality gate (composite 0-100 score)
+│   ├── readability_scorer.py        # Flesch, grade level, passive voice
+│   ├── engagement_analyzer.py       # Content engagement metrics
+│   ├── seo_quality_rater.py         # Comprehensive SEO score (0-100)
+│   ├── keyword_analyzer.py          # Density, TF-IDF, stuffing detection
+│   ├── search_intent_analyzer.py    # Query intent classification
+│   ├── content_length_comparator.py # SERP word count benchmarking
+│   ├── content_scrubber.py          # AI watermark removal (Unicode + dashes)
+│   ├── opportunity_scorer.py        # 8-factor keyword prioritization
+│   ├── competitor_gap_analyzer.py   # Content gap analysis
+│   ├── article_planner.py           # Article structure generation
+│   ├── section_writer.py            # Section-level content writing
+│   ├── above_fold_analyzer.py       # Above-fold CRO analysis
+│   ├── cta_analyzer.py              # CTA effectiveness scoring
+│   ├── trust_signal_analyzer.py     # Trust signal detection
+│   ├── landing_page_scorer.py       # Landing page score (0-100)
+│   ├── landing_performance.py       # Landing page GA4/GSC tracking
+│   ├── cro_checker.py               # CRO checklist verification
+│   ├── social_research_aggregator.py # Social media research
+│   ├── sample_size_calculator.py    # A/B test sample size calculation
+│   ├── subject_line_scorer.py       # Email subject line scoring
+│   └── keyword_pattern_validator.py # Programmatic SEO pattern validation
+├── cache/
 │   └── .gitkeep
-└── README.md             # This file
+├── requirements.txt       # Python dependencies
+└── README.md              # This file
 ```
 
 ## Setup
@@ -67,292 +55,126 @@ data_sources/
 ### 1. Install Dependencies
 
 ```bash
-pip install google-analytics-data google-auth-oauthlib google-auth-httplib2
-pip install google-api-python-client
-pip install requests python-dotenv pandas
-```
-
-Or use the requirements file:
-```bash
 pip install -r data_sources/requirements.txt
 ```
 
-### 2. Configure API Credentials
+### 2. Configure Credentials
 
-#### Google Analytics 4
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing
-3. Enable Google Analytics Data API
-4. Create service account credentials
-5. Download JSON key file
-6. Save as `data_sources/config/ga4_credentials.json`
-7. Add service account email to GA4 property (View access)
-
-#### Google Search Console
-1. Use same Google Cloud project
-2. Enable Search Console API
-3. Use same service account or create OAuth 2.0 credentials
-4. Save credentials as `data_sources/config/gsc_credentials.json`
-5. Add service account to Search Console property (Owner or Full access)
-
-#### DataForSEO
-1. Sign up at [DataForSEO](https://dataforseo.com/)
-2. Get API credentials (login + password)
-3. Add to `.env` file:
-   ```
-   DATAFORSEO_LOGIN=your_login
-   DATAFORSEO_PASSWORD=your_password
-   ```
-
-### 3. Configure Data Sources
-
-Copy example config:
 ```bash
 cp data_sources/config/.env.example data_sources/config/.env
 ```
 
-Edit `.env` with your credentials:
+Edit `data_sources/config/.env` with your credentials:
+
 ```env
 # Google Analytics 4
 GA4_PROPERTY_ID=123456789
-GA4_CREDENTIALS_PATH=data_sources/config/ga4_credentials.json
+GA4_CREDENTIALS_PATH=credentials/ga4-credentials.json
 
 # Google Search Console
-GSC_SITE_URL=https://castos.com
-GSC_CREDENTIALS_PATH=data_sources/config/gsc_credentials.json
+GSC_SITE_URL=https://yoursite.com
+GSC_CREDENTIALS_PATH=credentials/ga4-credentials.json
 
 # DataForSEO
 DATAFORSEO_LOGIN=your_login
 DATAFORSEO_PASSWORD=your_password
-DATAFORSEO_BASE_URL=https://api.dataforseo.com
 
-# Cache settings
-CACHE_ENABLED=true
-CACHE_TTL_HOURS=24
+# WordPress
+WORDPRESS_URL=https://yoursite.com
+WORDPRESS_USERNAME=your_username
+WORDPRESS_APP_PASSWORD=your_app_password
 ```
 
-## Usage
+GA4/GSC use the same service account JSON. Place it at `credentials/ga4-credentials.json` and add the service account email to your GA4 property and Search Console.
 
-### From Command Line
+### 3. Test Connectivity
 
-#### Fetch Google Analytics Data
-```python
-from data_sources.modules.google_analytics import GoogleAnalytics
-
-ga = GoogleAnalytics()
-
-# Get top performing articles (last 30 days)
-top_articles = ga.get_top_pages(days=30, limit=10)
-
-# Get traffic trends for specific URL
-trends = ga.get_page_trends(
-    url="/blog/podcast-monetization-guide",
-    days=90
-)
-
-# Get conversion data
-conversions = ga.get_conversions(days=30)
+```bash
+python3 test_dataforseo.py
 ```
 
-#### Fetch Search Console Data
-```python
-from data_sources.modules.google_search_console import GoogleSearchConsole
+## Module Categories
 
-gsc = GoogleSearchConsole()
+### Data Integrations (5 modules)
+| Module | Purpose |
+|--------|---------|
+| `google_analytics.py` | GA4 traffic, engagement, conversions, declining pages |
+| `google_search_console.py` | Rankings, quick wins, low CTR, trending queries |
+| `dataforseo.py` | SERP data, keyword ideas, competitor analysis |
+| `data_aggregator.py` | Combines all three sources, generates reports |
+| `wordpress_publisher.py` | Publish drafts to WordPress with Yoast SEO meta |
 
-# Get ranking positions
-rankings = gsc.get_keyword_positions(days=30)
+### Content Scoring (4 modules)
+| Module | Purpose |
+|--------|---------|
+| `content_scorer.py` | Quality gate: composite score across 5 dimensions (threshold: 70) |
+| `readability_scorer.py` | Flesch Reading Ease, grade level, passive voice |
+| `engagement_analyzer.py` | Content engagement pattern analysis |
+| `seo_quality_rater.py` | Comprehensive 0-100 SEO score with category breakdowns |
 
-# Find quick win opportunities (position 11-20)
-quick_wins = gsc.get_quick_wins()
+### SEO Analysis (4 modules)
+| Module | Purpose |
+|--------|---------|
+| `keyword_analyzer.py` | Density, distribution, TF-IDF clustering, LSI keywords |
+| `search_intent_analyzer.py` | Query intent classification (informational/commercial/transactional) |
+| `content_length_comparator.py` | Benchmarks against top 10 SERP results |
+| `content_scrubber.py` | AI watermark removal (12 Unicode chars + dash normalization) |
 
-# Get specific page performance
-page_data = gsc.get_page_performance(
-    url="/blog/podcast-monetization-guide"
-)
+### CRO Analysis (6 modules)
+| Module | Purpose |
+|--------|---------|
+| `above_fold_analyzer.py` | Above-fold content and value proposition analysis |
+| `cta_analyzer.py` | CTA placement, copy, and effectiveness scoring |
+| `trust_signal_analyzer.py` | Trust signal detection and recommendations |
+| `landing_page_scorer.py` | Landing page score (0-100) with category breakdowns |
+| `landing_performance.py` | GA4/GSC performance tracking for landing pages |
+| `cro_checker.py` | CRO checklist verification |
+
+### Content Pipeline (4 modules)
+| Module | Purpose |
+|--------|---------|
+| `opportunity_scorer.py` | 8-factor keyword prioritization |
+| `competitor_gap_analyzer.py` | Content gap analysis vs competitors |
+| `article_planner.py` | Article structure generation |
+| `section_writer.py` | Section-level content writing |
+
+### Specialized (4 modules)
+| Module | Purpose |
+|--------|---------|
+| `social_research_aggregator.py` | Social media research aggregation |
+| `sample_size_calculator.py` | A/B test sample size and duration |
+| `subject_line_scorer.py` | Email subject line scoring (5 dimensions) |
+| `keyword_pattern_validator.py` | Programmatic SEO pattern validation |
+
+## CLI Usage
+
+All modules can be run from the repo root:
+
+```bash
+# Content scoring
+python3 data_sources/modules/content_scorer.py drafts/my-article.md --json
+
+# SEO analysis
+python3 data_sources/modules/keyword_analyzer.py drafts/my-article.md "target keyword" --json
+
+# WordPress publishing
+python3 data_sources/modules/wordpress_publisher.py drafts/my-article.md --type post --json
+
+# DataForSEO
+python3 data_sources/modules/dataforseo.py "podcast hosting" --json
 ```
-
-#### Fetch DataForSEO Data
-```python
-from data_sources.modules.dataforseo import DataForSEO
-
-dfs = DataForSEO()
-
-# Get keyword rankings
-rankings = dfs.get_rankings(
-    keywords=["podcast hosting", "podcast analytics"]
-)
-
-# Analyze competitor rankings
-competitor_data = dfs.analyze_competitor(
-    competitor_domain="competitor.com",
-    keywords=["podcast hosting"]
-)
-
-# Get SERP data
-serp = dfs.get_serp_data(keyword="podcast monetization")
-```
-
-### From Claude Code Agent
-
-The Performance Agent automatically uses these data sources:
-
-```
-/performance-review
-
-# This command:
-# 1. Fetches data from all sources
-# 2. Analyzes performance trends
-# 3. Identifies opportunities
-# 4. Prioritizes next actions
-# 5. Creates recommendations report
-```
-
-## Data Aggregation
-
-The `DataAggregator` combines data from all sources:
-
-```python
-from data_sources.modules.data_aggregator import DataAggregator
-
-aggregator = DataAggregator()
-
-# Get comprehensive page performance
-performance = aggregator.get_page_performance(
-    url="/blog/podcast-monetization-guide"
-)
-
-# Returns:
-# {
-#   'url': '/blog/podcast-monetization-guide',
-#   'ga4': {
-#     'pageviews': 12500,
-#     'avg_engagement_time': 245,
-#     'bounce_rate': 0.42
-#   },
-#   'gsc': {
-#     'impressions': 45000,
-#     'clicks': 3200,
-#     'avg_position': 8.5,
-#     'ctr': 0.071
-#   },
-#   'dataforseo': {
-#     'primary_keyword': 'podcast monetization',
-#     'position': 8,
-#     'search_volume': 2900
-#   }
-# }
-```
-
-## Caching
-
-To avoid API rate limits and costs:
-- Responses are cached for 24 hours by default
-- Cache files stored in `data_sources/cache/`
-- Adjust `CACHE_TTL_HOURS` in `.env`
-- Clear cache: `rm -rf data_sources/cache/*`
-
-## Performance Agent Integration
-
-The Performance Agent uses this data to:
-
-1. **Identify Declining Content**
-   - Articles losing traffic (GA4)
-   - Keywords dropping in position (GSC + DataForSEO)
-   - Increased bounce rates (GA4)
-
-2. **Find Quick Wins**
-   - Keywords ranking 11-20 (GSC + DataForSEO)
-   - High impressions, low CTR (GSC)
-   - Competitor gaps (DataForSEO)
-
-3. **Prioritize Updates**
-   - High-traffic articles with old data
-   - Articles on page 2 for valuable keywords
-   - Content gaps in topic clusters
-
-4. **Suggest New Content**
-   - Rising search queries (GSC)
-   - Competitor keyword gaps (DataForSEO)
-   - Related questions (DataForSEO)
 
 ## Rate Limits & Costs
 
-### Google Analytics 4
-- **Free Tier**: 25,000 requests/day
-- **Quotas**: Per-property quotas apply
-- **Cost**: Free for standard properties
-
-### Google Search Console
-- **Free Tier**: Unlimited (reasonable use)
-- **Limits**: 1000 rows per request
-- **Cost**: Free
-
-### DataForSEO
-- **Pricing**: Pay-per-request
-- **Typical Costs**:
-  - SERP check: $0.006 per keyword
-  - Ranking check: $0.0005 per keyword
-  - Keyword data: $0.006 per keyword
-- **Budget**: Set monthly limits in config
-- **Tip**: Use caching aggressively to minimize costs
+| Service | Free Tier | Cost |
+|---------|-----------|------|
+| Google Analytics 4 | 25,000 requests/day | Free |
+| Google Search Console | Unlimited (reasonable use) | Free |
+| DataForSEO | Pay-per-request | ~$0.006/keyword |
 
 ## Security
 
-**IMPORTANT**: Never commit credentials to git!
-
-- `.env` files are in `.gitignore`
-- Credential JSON files are in `.gitignore`
-- Use service accounts, not user accounts
+- `.env` and credential files are gitignored
+- Use service accounts with read-only access
+- WordPress uses application passwords (not user passwords)
 - Rotate credentials regularly
-- Limit service account permissions to read-only
-
-## Troubleshooting
-
-### "Authentication failed"
-- Verify credentials file exists and path is correct
-- Check service account has access to property
-- Ensure APIs are enabled in Google Cloud Console
-
-### "No data returned"
-- Check date ranges (some properties have data delays)
-- Verify property IDs and site URLs are correct
-- Ensure property has data for requested time period
-
-### "Rate limit exceeded"
-- Enable caching to reduce API calls
-- Increase cache TTL in `.env`
-- For DataForSEO, check account limits and budget
-
-### "Module not found"
-- Install dependencies: `pip install -r data_sources/requirements.txt`
-- Check Python path includes data_sources directory
-
-## Best Practices
-
-1. **Cache Aggressively**: Use 24-hour cache for historical data
-2. **Batch Requests**: Fetch multiple pages/keywords in one request
-3. **Monitor Costs**: Track DataForSEO usage, set budget alerts
-4. **Refresh Strategically**: Daily updates for priority content only
-5. **Validate Data**: Cross-reference between sources for accuracy
-
-## Future Enhancements
-
-Potential additions:
-- [ ] Ahrefs integration (backlink data)
-- [ ] SEMrush integration (additional keyword data)
-- [ ] Automated reporting via email
-- [ ] Slack notifications for significant changes
-- [ ] Historical data export and visualization
-- [ ] A/B test result tracking
-
-## Support
-
-For issues with:
-- **Google APIs**: [Google Analytics API docs](https://developers.google.com/analytics/devguides/reporting/data/v1)
-- **Search Console API**: [Search Console API docs](https://developers.google.com/webmaster-tools/search-console-api-original)
-- **DataForSEO**: [DataForSEO docs](https://docs.dataforseo.com/)
-
----
-
-**Note**: Data sources power the Performance Agent to make data-driven content decisions. Proper setup ensures accurate, actionable insights.
