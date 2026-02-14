@@ -513,7 +513,7 @@ Removes invisible Unicode watermarks and AI telltale patterns.
 
 ### 2. Score Content Quality
 ```bash
-python data_sources/modules/content_scorer.py drafts/[filename].md
+python3 data_sources/modules/content_scorer.py drafts/[filename].md
 ```
 
 **Score Threshold: 70+**

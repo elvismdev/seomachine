@@ -125,7 +125,7 @@ class KeywordAnalyzer:
         variation_count = 0
         keyword_words = keyword_lower.split()
         if len(keyword_words) > 1:
-            # Look for variations like "podcast hosting" -> "hosting podcast" or "hosting your podcast"
+            # Look for variations like "email marketing" -> "marketing email" or "marketing your email"
             variation_pattern = r'\b(?:' + '|'.join(keyword_words) + r')\b'
             matches = re.finditer(variation_pattern, content_lower)
             variation_count = len(list(matches)) - (exact_count * len(keyword_words))

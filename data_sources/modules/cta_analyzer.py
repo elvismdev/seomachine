@@ -168,7 +168,7 @@ class CTAAnalyzer:
                     ctas.append({
                         'text': text.strip(),
                         'position': match.start(),
-                        'position_pct': round(match.start() / len(content) * 100, 1),
+                        'position_pct': round(match.start() / max(len(content), 1) * 100, 1),
                         'type': 'button',
                         'full_match': match.group()
                     })
@@ -188,7 +188,7 @@ class CTAAnalyzer:
                     ctas.append({
                         'text': text.strip(),
                         'position': match.start(),
-                        'position_pct': round(match.start() / len(content) * 100, 1),
+                        'position_pct': round(match.start() / max(len(content), 1) * 100, 1),
                         'type': 'text',
                         'full_match': match.group()
                     })

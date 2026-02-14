@@ -9,6 +9,13 @@ import re
 import textstat
 from typing import Dict, List, Optional, Any
 
+try:
+    from ._scoring import get_grade as _shared_get_grade
+    from ._markdown import strip_markdown_for_analysis
+except ImportError:
+    from _scoring import get_grade as _shared_get_grade
+    from _markdown import strip_markdown_for_analysis
+
 
 class ReadabilityScorer:
     """Analyzes content readability using multiple metrics"""
@@ -68,31 +75,7 @@ class ReadabilityScorer:
 
     def _clean_content(self, content: str) -> str:
         """Clean content for readability analysis"""
-        text = content
-
-        # Remove YAML frontmatter
-        text = re.sub(r'^---\s*\n.*?\n---\s*\n', '', text, count=1, flags=re.DOTALL)
-
-        # Remove markdown headers
-        text = re.sub(r'^#+\s+', '', text, flags=re.MULTILINE)
-
-        # Remove links but keep text
-        text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
-
-        # Remove code blocks (multi-line)
-        text = re.sub(r'```[\s\S]*?```', '', text)
-
-        # Remove inline code
-        text = re.sub(r'`[^`]+`', '', text)
-
-        # Remove table rows
-        text = re.sub(r'^\|.*\|$', '', text, flags=re.MULTILINE)
-
-        # Remove extra whitespace
-        text = re.sub(r'\n\s*\n', '\n\n', text)
-        text = text.strip()
-
-        return text
+        return strip_markdown_for_analysis(content)
 
     def _calculate_metrics(self, text: str) -> Dict[str, Any]:
         """Calculate readability metrics using textstat library"""
@@ -290,16 +273,7 @@ class ReadabilityScorer:
 
     def _get_grade(self, score: float) -> str:
         """Convert score to letter grade"""
-        if score >= 90:
-            return "A (Excellent)"
-        elif score >= 80:
-            return "B (Good)"
-        elif score >= 70:
-            return "C (Average)"
-        elif score >= 60:
-            return "D (Needs Work)"
-        else:
-            return "F (Poor)"
+        return _shared_get_grade(score)
 
     def _get_status(self, metrics: Dict, structure: Dict) -> Dict[str, Any]:
         """Get quick status assessment"""

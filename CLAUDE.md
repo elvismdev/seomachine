@@ -94,9 +94,9 @@ Six modules for landing page conversion optimization:
 
 `opportunity_scorer.py` uses 8 weighted factors: Volume (25%), Position (20%), Intent (20%), Competition (15%), Cluster (10%), CTR (5%), Freshness (5%), Trend (5%). Priority levels: CRITICAL, HIGH, MEDIUM, LOW, SKIP.
 
-### Orchestration Skills (Deterministic-First)
+### Skills with Script Integration (Deterministic-First)
 
-22 skills in `.claude/skills/` that wrap Python modules via symlinks in `scripts/` directories. These run deterministic Python analysis first, then use LLM reasoning to interpret results:
+22 of the 36 skills wrap Python modules via symlinks in `scripts/` directories. These run deterministic Python analysis first, then use LLM reasoning to interpret results. The first 10 are dedicated orchestration skills; the remaining 12 are marketing skills enhanced with data pipelines:
 
 | Skill | Scripts | Purpose |
 |-------|---------|---------|
@@ -127,11 +127,11 @@ All scripts accept `--json` flags for machine-readable output. Skills use `{base
 
 ### Marketing Skills Library
 
-36 skills in `.claude/skills/` (10 orchestration + 26 marketing), each with a `SKILL.md` and optional `references/` and `scripts/` directories. Marketing categories: Copywriting, CRO (page/form/signup/onboarding/popup/paywall), Strategy, Channels (email/social/paid-ads), SEO, Analytics. Invoked as slash commands (e.g., `/copywriting`, `/page-cro`, `/seo-audit`). 22 of the 36 skills have `scripts/` directories with symlinked Python modules (41 symlinks total).
+36 skills in `.claude/skills/`, each with a `SKILL.md` and optional `references/` and `scripts/` directories. Categories: Copywriting, CRO (page/form/signup/onboarding/popup/paywall), Strategy, Channels (email/social/paid-ads), SEO, Analytics. Invoked as slash commands (e.g., `/copywriting`, `/page-cro`, `/seo-audit`).
 
 ### Skill Architecture (Symlinks)
 
-Orchestration skills use relative symlinks to share Python modules without copying:
+Skills with script integration use relative symlinks to share Python modules without copying:
 
 ```
 .claude/skills/[skill-name]/

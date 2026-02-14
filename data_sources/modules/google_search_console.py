@@ -67,7 +67,7 @@ class GoogleSearchConsole:
         response = self.service.searchanalytics().query(
             siteUrl=self.site_url,
             body=request
-        ).execute()
+        ).execute(num_retries=3)
 
         results = []
         for row in response.get('rows', []):
@@ -173,7 +173,7 @@ class GoogleSearchConsole:
         # MEDIUM INTENT (1.0): Informational with potential
         medium_intent = [
             'what is', 'how does', 'why', 'benefits', 'features',
-            'podcast', 'podcasting', 'audio', 'video', 'rss', 'marketing'
+            'overview', 'explained', 'introduction', 'basics', 'marketing'
         ]
 
         # LOW INTENT (0.1): Pure informational/celebrity/news
@@ -252,7 +252,7 @@ class GoogleSearchConsole:
         response = self.service.searchanalytics().query(
             siteUrl=self.site_url,
             body=request
-        ).execute()
+        ).execute(num_retries=3)
 
         if not response.get('rows'):
             return {'url': url, 'error': 'No data found'}
@@ -285,7 +285,7 @@ class GoogleSearchConsole:
         keywords_response = self.service.searchanalytics().query(
             siteUrl=self.site_url,
             body=keywords_request
-        ).execute()
+        ).execute(num_retries=3)
 
         keywords = []
         for kw_row in keywords_response.get('rows', []):
@@ -344,7 +344,7 @@ class GoogleSearchConsole:
         response = self.service.searchanalytics().query(
             siteUrl=self.site_url,
             body=request
-        ).execute()
+        ).execute(num_retries=3)
 
         low_ctr = []
         for row in response.get('rows', []):
@@ -404,7 +404,7 @@ class GoogleSearchConsole:
         recent_response = self.service.searchanalytics().query(
             siteUrl=self.site_url,
             body=recent_request
-        ).execute()
+        ).execute(num_retries=3)
 
         # Get comparison data
         comparison_end = (datetime.now() - timedelta(days=days_recent)).strftime('%Y-%m-%d')
@@ -420,7 +420,7 @@ class GoogleSearchConsole:
         comparison_response = self.service.searchanalytics().query(
             siteUrl=self.site_url,
             body=comparison_request
-        ).execute()
+        ).execute(num_retries=3)
 
         # Create lookup for comparison data
         comparison_lookup = {

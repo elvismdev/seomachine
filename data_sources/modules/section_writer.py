@@ -9,18 +9,11 @@ Used by the /article command during the section-by-section writing phase.
 
 from typing import Dict, List, Optional
 from dataclasses import dataclass
-from enum import Enum
 
-
-class SectionType(Enum):
-    """Types of article sections for specialized writing."""
-    INTRO = "intro"
-    BODY_HOW_TO = "body_how_to"
-    BODY_COMPARISON = "body_comparison"
-    BODY_EXPLANATION = "body_explanation"
-    BODY_LIST = "body_list"
-    FAQ = "faq"
-    CONCLUSION = "conclusion"
+try:
+    from .article_planner import SectionType
+except ImportError:
+    from article_planner import SectionType
 
 
 @dataclass

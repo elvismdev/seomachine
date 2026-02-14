@@ -57,10 +57,9 @@ def main():
     print("=" * 80)
     try:
         from research_quick_wins import main as quick_wins_main
-        # Capture quick wins data (would need to modify research_quick_wins to return data)
         print("Running quick wins research...")
-        # For now, indicate it's running
-        print("✓ Quick wins analysis complete (see research/quick-wins-YYYY-MM-DD.md)")
+        quick_wins_main()
+        print("✓ Quick wins analysis complete")
         results['quick_wins'] = 'completed'
     except Exception as e:
         print(f"⚠ Quick wins analysis failed: {e}")
@@ -79,9 +78,10 @@ def main():
             print("Skipping competitor gap analysis")
             results['competitor_gaps'] = 'skipped'
         else:
+            from research_competitor_gaps import main as competitor_gaps_main
             print("Running competitor gap analysis...")
-            # Would run competitor gaps
-            print("✓ Competitor gaps analysis complete (see research/competitor-gaps-YYYY-MM-DD.md)")
+            competitor_gaps_main()
+            print("✓ Competitor gaps analysis complete")
             results['competitor_gaps'] = 'completed'
     except KeyboardInterrupt:
         print("\nSkipping competitor gap analysis")
@@ -95,8 +95,10 @@ def main():
     print("3/5: CONTENT PERFORMANCE MATRIX")
     print("=" * 80)
     try:
+        from research_performance_matrix import main as performance_matrix_main
         print("Running performance matrix analysis...")
-        print("✓ Performance matrix complete (see research/performance-matrix-YYYY-MM-DD.md)")
+        performance_matrix_main()
+        print("✓ Performance matrix complete")
         results['performance_matrix'] = 'completed'
     except Exception as e:
         print(f"⚠ Performance matrix failed: {e}")
@@ -107,8 +109,10 @@ def main():
     print("4/5: TOPIC CLUSTER ANALYSIS")
     print("=" * 80)
     try:
+        from research_topic_clusters import main as topic_clusters_main
         print("Running topic cluster analysis...")
-        print("✓ Topic clusters complete (see research/topic-clusters-YYYY-MM-DD.md)")
+        topic_clusters_main()
+        print("✓ Topic clusters complete")
         results['topic_clusters'] = 'completed'
     except Exception as e:
         print(f"⚠ Topic clusters failed: {e}")
@@ -119,8 +123,10 @@ def main():
     print("5/5: TRENDING TOPICS ANALYSIS")
     print("=" * 80)
     try:
+        from research_trending import main as trending_main
         print("Running trending analysis...")
-        print("✓ Trending topics complete (see research/trending-YYYY-MM-DD.md)")
+        trending_main()
+        print("✓ Trending topics complete")
         results['trending'] = 'completed'
     except Exception as e:
         print(f"⚠ Trending analysis failed: {e}")

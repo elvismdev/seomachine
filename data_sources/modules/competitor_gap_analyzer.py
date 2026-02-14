@@ -105,8 +105,8 @@ class CompetitorGapAnalyzer:
 
     # Patterns indicating vague/unsupported claims
     UNSUPPORTED_PATTERNS = [
-        r'\bmany\s+(?:podcasters?|people|users|creators?)\b',
-        r'\bmost\s+(?:podcasters?|people|experts?|creators?)\b',
+        r'\bmany\s+(?:customers?|people|users|creators?)\b',
+        r'\bmost\s+(?:customers?|people|experts?|creators?)\b',
         r'\bstudies\s+show\b(?!\s*[\[\(])',  # No citation following
         r'\bresearch\s+(?:indicates?|shows?|suggests?)\b(?!\s*[\[\(])',
         r'\bsignificant(?:ly)?\s+(?:increase|improvement|growth|impact)\b',

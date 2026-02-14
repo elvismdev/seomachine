@@ -27,7 +27,7 @@ Runs quick wins analysis only - fast turnaround for immediate opportunities.
 ### 1. Execute Quick Wins Research
 Run the research_quick_wins.py script:
 ```bash
-python research_quick_wins.py
+python3 research_quick_wins.py
 ```
 
 This will:

@@ -81,8 +81,7 @@ When you run this command:
 ### Step 2: Publish to WordPress
 Run the WordPress publisher:
 ```bash
-cd /path/to/seomachine
-python data_sources/modules/wordpress_publisher.py "$FILE_PATH" --type "$POST_TYPE"
+python3 data_sources/modules/wordpress_publisher.py "$FILE_PATH" --type "$POST_TYPE"
 ```
 
 Where `$POST_TYPE` is `post`, `page`, or a custom post type.

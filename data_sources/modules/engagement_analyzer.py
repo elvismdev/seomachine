@@ -25,9 +25,9 @@ class EngagementAnalyzer:
         r'^[A-Z][^.!?]*\bare\s+(?:a|an|the|both)\s+',  # "X are a/an/the..."
         r'^When it comes to',
         r'^In (?:today\'s|the|this)\s+(?:digital|modern|world|age)',
-        r'^(?:Podcast|Audio|Content)\s+(?:hosting|marketing|creation)\s+(?:is|has|can)',
+        r'^(?:Content|Digital|Online)\s+(?:hosting|marketing|creation)\s+(?:is|has|can)',
         r'^If you\'re (?:looking|searching|trying)',
-        r'^(?:Many|Most|Some)\s+(?:podcasters?|creators?|people)',
+        r'^(?:Many|Most|Some)\s+(?:customers?|creators?|people|users?)',
         r'^There are (?:many|several|numerous)',
         r'^It\'s (?:no secret|important|essential)',
     ]
@@ -56,7 +56,7 @@ class EngagementAnalyzer:
     NAME_PATTERNS = [
         r'\b(?:Sarah|Mike|Marcus|Lisa|John|David|Emily|Chris|Alex|Tom|Anna|James|Maria|Rachel|Dan|Kate)\b',
         r'\b(?:The team at|At) [A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\b',  # "The team at Acme"
-        r'\b[A-Z][a-z]+\'s (?:podcast|show|episode|company|business|team)\b',  # "Sarah's podcast"
+        r'\b[A-Z][a-z]+\'s (?:product|show|company|business|team|blog|channel)\b',  # "Sarah's company"
     ]
 
     def analyze(self, content: str, filename: str = "") -> Dict[str, Any]:
@@ -363,7 +363,7 @@ def format_results(results: List[Dict]) -> str:
         lines.append("")
         lines.append(f"❌ HOOK ISSUES ({len(hook_issues)} articles):")
         for r in hook_issues:
-            lines.append(f"   • {r['filename'].replace('-2025-12-10.md', '')}")
+            lines.append(f"   • {r['filename'].replace('.md', '')}")
             lines.append(f"     Opening: \"{r['hook']['opening'][:70]}...\"")
             lines.append(f"     Reason: {r['hook']['reason']}")
 
@@ -373,7 +373,7 @@ def format_results(results: List[Dict]) -> str:
         lines.append("")
         lines.append(f"❌ CTA DISTRIBUTION ISSUES ({len(cta_issues)} articles):")
         for r in cta_issues:
-            lines.append(f"   • {r['filename'].replace('-2025-12-10.md', '')}: {r['ctas']['count']} CTAs, distributed={r['ctas']['distributed']}")
+            lines.append(f"   • {r['filename'].replace('.md', '')}: {r['ctas']['count']} CTAs, distributed={r['ctas']['distributed']}")
 
     # Paragraph issues
     para_issues = [r for r in results if not r['scores']['paragraphs']]
@@ -381,7 +381,7 @@ def format_results(results: List[Dict]) -> str:
         lines.append("")
         lines.append(f"❌ PARAGRAPH LENGTH ISSUES ({len(para_issues)} articles - >3 long paragraphs):")
         for r in para_issues:
-            lines.append(f"   • {r['filename'].replace('-2025-12-10.md', '')}: {r['paragraphs']['long_count']} paragraphs >4 sentences")
+            lines.append(f"   • {r['filename'].replace('.md', '')}: {r['paragraphs']['long_count']} paragraphs >4 sentences")
 
     # Rhythm issues (list last as there are many)
     rhythm_issues = [r for r in results if not r['scores']['rhythm']]
@@ -389,7 +389,7 @@ def format_results(results: List[Dict]) -> str:
         lines.append("")
         lines.append(f"❌ RHYTHM ISSUES ({len(rhythm_issues)} articles - monotonous sentence patterns):")
         for r in rhythm_issues:
-            lines.append(f"   • {r['filename'].replace('-2025-12-10.md', '')}: score={r['rhythm']['score']}, monotonous_sections={r['rhythm']['monotonous_sections']}")
+            lines.append(f"   • {r['filename'].replace('.md', '')}: score={r['rhythm']['score']}, monotonous_sections={r['rhythm']['monotonous_sections']}")
 
     lines.append("")
     lines.append("=" * 90)

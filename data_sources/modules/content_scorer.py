@@ -17,17 +17,22 @@ Composite score must be >= 70 to pass quality threshold.
 """
 
 import re
+import logging
 from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 # Import existing modules
 try:
     from .readability_scorer import ReadabilityScorer
     from .seo_quality_rater import SEOQualityRater
+    from ._markdown import strip_markdown_for_analysis
 except ImportError:
     # For standalone testing
     from readability_scorer import ReadabilityScorer
     from seo_quality_rater import SEOQualityRater
+    from _markdown import strip_markdown_for_analysis
 
 
 class ContentScorer:
@@ -259,37 +264,7 @@ class ContentScorer:
 
     def _clean_for_analysis(self, content: str) -> str:
         """Remove markdown formatting for text analysis"""
-        text = content
-
-        # Remove YAML frontmatter
-        text = re.sub(r'^---\s*\n.*?\n---\s*\n', '', text, count=1, flags=re.DOTALL)
-
-        # Remove frontmatter/metadata block (bold markdown style)
-        text = re.sub(r'^\*\*[^*]+\*\*:\s*.+$', '', text, flags=re.MULTILINE)
-
-        # Remove horizontal rules
-        text = re.sub(r'^---+\s*$', '', text, flags=re.MULTILINE)
-
-        # Remove code blocks (multi-line)
-        text = re.sub(r'```[\s\S]*?```', '', text)
-
-        # Remove inline code
-        text = re.sub(r'`[^`]+`', '', text)
-
-        # Remove table rows
-        text = re.sub(r'^\|.*\|$', '', text, flags=re.MULTILINE)
-
-        # Remove links but keep text
-        text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
-
-        # Remove bold/italic markers
-        text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
-        text = re.sub(r'\*([^*]+)\*', r'\1', text)
-
-        # Remove headers but keep text
-        text = re.sub(r'^#+\s+', '', text, flags=re.MULTILINE)
-
-        return text.strip()
+        return strip_markdown_for_analysis(content)
 
     def _score_humanity(self, content: str) -> Dict[str, Any]:
         """Score content for human voice and personality"""
@@ -679,8 +654,8 @@ class ContentScorer:
             analysis = self.readability_scorer.analyze(content)
             flesch = analysis.get('readability_metrics', {}).get('flesch_reading_ease', 50)
             grade = analysis.get('reading_level', 12)
-        except Exception:
-            # Fallback if module fails
+        except Exception as e:
+            logger.warning("Readability scorer failed, using fallback values: %s", e)
             flesch = 60
             grade = 10
 

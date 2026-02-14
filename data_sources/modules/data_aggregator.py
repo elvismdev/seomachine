@@ -8,15 +8,15 @@ import os
 import sys
 from typing import Dict, List, Optional, Any
 from datetime import datetime
-from pathlib import Path
-from dotenv import load_dotenv
 
 try:
+    from ._env import ensure_env
     from .google_analytics import GoogleAnalytics
     from .google_search_console import GoogleSearchConsole
     from .dataforseo import DataForSEO
 except ImportError:
     # Fallback for direct execution
+    from _env import ensure_env
     from google_analytics import GoogleAnalytics
     from google_search_console import GoogleSearchConsole
     from dataforseo import DataForSEO
@@ -29,9 +29,7 @@ class DataAggregator:
 
     def __init__(self):
         """Initialize all data source clients"""
-        # Use path relative to this file so imports work from any directory
-        _env_path = Path(__file__).resolve().parent.parent / 'config' / '.env'
-        load_dotenv(_env_path)
+        ensure_env()
 
         try:
             self.ga = GoogleAnalytics()

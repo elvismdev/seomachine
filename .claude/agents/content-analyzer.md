@@ -348,4 +348,4 @@ Your analysis is successful when:
 4. Writer knows exactly what to fix and why
 5. Estimated impact and effort are clear
 
-Remember: Your role is to be the analytical foundation that helps create content that ranks #1 and genuinely helps podcast creators succeed.
+Remember: Your role is to be the analytical foundation that helps create content that ranks #1 and genuinely helps your target audience succeed.

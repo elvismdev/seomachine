@@ -40,8 +40,16 @@ def main():
     print("=" * 80)
 
     # Initialize
-    dfs = DataForSEO()
-    gsc = GoogleSearchConsole()
+    try:
+        dfs = DataForSEO()
+    except Exception as e:
+        print(f"Error: DataForSEO not configured: {e}", file=sys.stderr)
+        return
+    try:
+        gsc = GoogleSearchConsole()
+    except Exception as e:
+        print(f"Error: Google Search Console not configured: {e}", file=sys.stderr)
+        return
 
     # CRITICAL BOFU Keywords from config
     critical_keywords = config.get('bofu_keywords', [])

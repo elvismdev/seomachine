@@ -43,6 +43,11 @@ class WordPressPublisher:
 
         if not self.url:
             raise ValueError("WORDPRESS_URL must be set")
+        if not self.url.startswith('https://'):
+            raise ValueError(
+                "WORDPRESS_URL must use HTTPS to protect credentials in transit. "
+                f"Got: {self.url}"
+            )
         if not self.username or not self.app_password:
             raise ValueError("WORDPRESS_USERNAME and WORDPRESS_APP_PASSWORD must be set")
 
@@ -67,6 +72,13 @@ class WordPressPublisher:
         # Cache for categories and tags
         self._categories_cache: Optional[Dict[str, int]] = None
         self._tags_cache: Optional[Dict[str, int]] = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.session.close()
+        return False
 
     def parse_draft_file(self, file_path: str) -> Dict:
         """
@@ -469,12 +481,9 @@ def main():
     """CLI entry point for testing"""
     import sys
     import argparse
-    from dotenv import load_dotenv
+    from _env import ensure_env
 
-    # Load environment variables
-    env_path = Path(__file__).parent.parent.parent / '.env'
-    if env_path.exists():
-        load_dotenv(env_path)
+    ensure_env()
 
     parser = argparse.ArgumentParser(description='Publish a draft to WordPress')
     parser.add_argument('file_path', help='Path to the markdown draft file')

@@ -285,7 +285,7 @@ After saving the initial draft, automatically run the content quality scorer:
 ### Step 1: Score Content
 Run the content scorer to evaluate the draft:
 ```bash
-python data_sources/modules/content_scorer.py drafts/[article-file].md
+python3 data_sources/modules/content_scorer.py drafts/[article-file].md
 ```
 
 ### Step 2: Evaluate Score

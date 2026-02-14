@@ -7,8 +7,10 @@ to determine optimal word count for ranking competitively.
 
 import re
 import time
+import ipaddress
 import requests
 from typing import Dict, List, Optional, Any
+from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import statistics
 
@@ -102,8 +104,30 @@ class ContentLengthComparator:
             )
         }
 
+    def _is_safe_url(self, url: str) -> bool:
+        """Validate URL to prevent SSRF attacks."""
+        try:
+            parsed = urlparse(url)
+            if parsed.scheme not in ('http', 'https'):
+                return False
+            hostname = parsed.hostname
+            if not hostname:
+                return False
+            try:
+                ip = ipaddress.ip_address(hostname)
+                if ip.is_private or ip.is_loopback or ip.is_link_local:
+                    return False
+            except ValueError:
+                if hostname in ('localhost', '127.0.0.1', '::1'):
+                    return False
+            return True
+        except Exception:
+            return False
+
     def _fetch_word_count(self, url: str) -> Optional[int]:
         """Fetch and count words from a URL"""
+        if not self._is_safe_url(url):
+            return None
         try:
             response = requests.get(url, headers=self.headers, timeout=10)
             response.raise_for_status()
@@ -137,6 +161,14 @@ class ContentLengthComparator:
 
         return None
 
+    @staticmethod
+    def _safe_mode(counts: List[int]) -> int:
+        """Compute mode with fallback for multimodal data."""
+        try:
+            return round(statistics.mode(counts))
+        except statistics.StatisticsError:
+            return round(statistics.median(counts))
+
     def _calculate_statistics(self, counts: List[int]) -> Dict[str, Any]:
         """Calculate statistical measures"""
         if not counts:
@@ -147,7 +179,7 @@ class ContentLengthComparator:
             'max': max(counts),
             'mean': round(statistics.mean(counts)),
             'median': round(statistics.median(counts)),
-            'mode': round(statistics.mode(counts)) if len(counts) > 1 else counts[0],
+            'mode': self._safe_mode(counts),
             'std_dev': round(statistics.stdev(counts)) if len(counts) > 1 else 0,
             'percentile_25': round(statistics.quantiles(counts, n=4)[0]) if len(counts) > 3 else min(counts),
             'percentile_75': round(statistics.quantiles(counts, n=4)[2]) if len(counts) > 3 else max(counts)

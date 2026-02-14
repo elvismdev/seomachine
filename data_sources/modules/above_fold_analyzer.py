@@ -15,6 +15,11 @@ Checks for:
 import re
 from typing import Dict, List, Any, Optional
 
+try:
+    from ._scoring import get_grade as _shared_get_grade
+except ImportError:
+    from _scoring import get_grade as _shared_get_grade
+
 
 class AboveFoldAnalyzer:
     """Analyzes above-the-fold content effectiveness"""
@@ -64,7 +69,7 @@ class AboveFoldAnalyzer:
 
     # Trust signal patterns
     TRUST_PATTERNS = [
-        r'\d{1,3}(?:,\d{3})*\+?\s*(?:podcasters?|customers?|users?)',
+        r'\d{1,3}(?:,\d{3})*\+?\s*(?:customers?|users?|subscribers?)',
         r'trusted\s+by',
         r'"[^"]{10,100}"',  # Short testimonial
         r'(?:\d(?:\.\d)?|\d\d?)/(?:5|10)\s*(?:stars?|rating)?',
@@ -426,16 +431,7 @@ class AboveFoldAnalyzer:
 
     def _get_grade(self, score: float) -> str:
         """Convert score to letter grade"""
-        if score >= 90:
-            return "A (Excellent)"
-        elif score >= 80:
-            return "B (Good)"
-        elif score >= 70:
-            return "C (Acceptable)"
-        elif score >= 60:
-            return "D (Needs Work)"
-        else:
-            return "F (Poor)"
+        return _shared_get_grade(score)
 
 
 # Convenience function

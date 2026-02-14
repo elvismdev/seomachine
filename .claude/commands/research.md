@@ -38,12 +38,12 @@ Use this command to conduct comprehensive SEO keyword research and competitive a
 - **Target Keywords**: Cross-reference with @context/target-keywords.md priority list
 - **SEO Guidelines**: Ensure research aligns with @context/seo-guidelines.md requirements
 
-### Podcast Industry Focus
-- **Podcast Creator Angle**: How does this topic specifically impact target audiences?
-- **Technical Requirements**: Any your industry-specific technical considerations?
+### Industry Focus
+- **Target Audience Angle**: How does this topic specifically impact your target audience?
+- **Technical Requirements**: Any industry-specific technical considerations?
 - **Industry Trends**: Current trends in your industry that relate to this topic
-- **Use Cases**: Real podcast scenarios where this topic matters
-- **Pain Points**: Specific challenges target audiences face with this topic
+- **Use Cases**: Real scenarios where this topic matters for your audience
+- **Pain Points**: Specific challenges your target audience faces with this topic
 
 ### Content Planning
 - **Recommended Structure**: Outline H2 and H3 headings based on research
@@ -99,7 +99,7 @@ Conclusion
 ### 4. Supporting Elements
 - **Statistics to Include**: 5-7 relevant data points with sources
 - **Expert Quotes**: Potential sources or existing quotes
-- **Examples/Case Studies**: Real podcast scenarios to feature
+- **Examples/Case Studies**: Real scenarios from your industry to feature
 - **Visual Suggestions**: Screenshots, charts, or graphics needed
 
 ### 5. Internal Linking Strategy

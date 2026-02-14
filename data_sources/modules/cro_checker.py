@@ -18,6 +18,11 @@ Categories:
 import re
 from typing import Dict, List, Any, Optional
 
+try:
+    from ._scoring import get_grade as _shared_get_grade
+except ImportError:
+    from _scoring import get_grade as _shared_get_grade
+
 
 class CROChecker:
     """Checklist-based CRO audit for landing pages"""
@@ -178,7 +183,7 @@ class CROChecker:
         })
 
         # Check: Target audience clear
-        audience_patterns = [r'podcasters?', r'creators?', r'you(?:r)?', r'businesses?']
+        audience_patterns = [r'customers?', r'creators?', r'you(?:r)?', r'businesses?', r'users?']
         addresses_audience = any(re.search(p, above_fold, re.IGNORECASE) for p in audience_patterns)
         checks.append({
             'name': 'Addresses target audience',
@@ -199,7 +204,7 @@ class CROChecker:
 
         # Check: Customer count
         has_count = bool(re.search(
-            r'\d{1,3}(?:,\d{3})*\+?\s*(?:podcasters?|customers?|users?)',
+            r'\d{1,3}(?:,\d{3})*\+?\s*(?:customers?|users?|subscribers?)',
             content, re.IGNORECASE
         ))
         checks.append({
@@ -554,16 +559,7 @@ class CROChecker:
 
     def _get_grade(self, score: int) -> str:
         """Convert score to letter grade"""
-        if score >= 90:
-            return "A (Excellent)"
-        elif score >= 80:
-            return "B (Good)"
-        elif score >= 70:
-            return "C (Acceptable)"
-        elif score >= 60:
-            return "D (Needs Work)"
-        else:
-            return "F (Poor)"
+        return _shared_get_grade(score)
 
 
 # Convenience function

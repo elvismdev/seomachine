@@ -128,7 +128,7 @@ For each content piece, gather:
 ---
 
 #### E. Competitor Gaps
-**What**: Keywords competitors rank for, but you don't
+**What**: Keywords competitors rank for, but your site doesn't
 
 **Why Medium Priority**:
 - Proven demand
@@ -377,7 +377,7 @@ Opportunities fall into quadrants:
 **Top Trending Topic**: "[Query]"
 - **Growth**: +[XX]% impressions
 - **Current Volume**: [X,XXX] impressions/month
-- **Current Castos Content**: [None / Weak / Indirect]
+- **Current Content on Your Site**: [None / Weak / Indirect]
 - **Competition**: [Analysis]
 - **Recommended Action**: Create comprehensive guide on "[topic]"
 - **Target Length**: [X,XXX] words
@@ -388,20 +388,20 @@ Opportunities fall into quadrants:
 
 #### Competitor Gaps
 
-**Found**: [X] high-value keywords where competitors outrank Castos
+**Found**: [X] high-value keywords where competitors outrank your site
 
-| Keyword | Competitor | Their Pos | Castos Pos | Search Vol | Gap Score |
-|---------|-----------|-----------|------------|------------|-----------|
+| Keyword | Competitor | Their Pos | Your Pos | Search Vol | Gap Score |
+|---------|-----------|-----------|----------|------------|-----------|
 | [kw 1] | competitor.com | 3 | Not ranking | 2,900 | 92/100 |
 | [kw 2] | competitor.com | 5 | 28 | 1,800 | 85/100 |
 | [kw 3] | competitor.com | 7 | Not ranking | 1,200 | 78/100 |
 
 **Biggest Gap**: "[Keyword]"
 - **Competitors Ranking**: [List domains and positions]
-- **Castos Position**: [Position or "Not ranking"]
+- **Your Position**: [Position or "Not ranking"]
 - **Search Volume**: [X,XXX]/month
 - **Why They Rank**: [Analysis of competitor content]
-- **Castos Advantage**: [How we could differentiate]
+- **Your Advantage**: [How you could differentiate]
 - **Recommended Action**: [Create new / Update existing]
 
 ---
@@ -540,8 +540,8 @@ Based on opportunity analysis, allocate effort as follows:
 2. **Data Beats Intuition**: Trust the metrics, not hunches
 3. **Momentum Matters**: Quick wins build confidence and momentum
 4. **Protect What Works**: Don't neglect high-performing content
-5. **Strategic Focus**: Align content work with business goals
+5. **Strategic Focus**: Align content work with business goals (reference @context/brand-voice.md)
 6. **Resource Reality**: Recommend what's actually achievable
 7. **Continuous Learning**: Track what works, adjust strategy accordingly
 
-Your role is to be the data-informed strategist who ensures every hour spent on content delivers maximum SEO and business value. Make Castos's content team more effective by telling them exactly what to work on, why it matters, and what impact to expect.
+Your role is to be the data-informed strategist who ensures every hour spent on content delivers maximum SEO and business value. Make your content team more effective by telling them exactly what to work on, why it matters, and what impact to expect.

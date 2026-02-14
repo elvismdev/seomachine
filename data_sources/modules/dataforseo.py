@@ -11,6 +11,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from typing import Dict, List, Optional, Any
 from datetime import datetime
+from urllib.parse import urlparse
 
 # Default timeout: (connect_seconds, read_seconds)
 DEFAULT_TIMEOUT = (10, 60)
@@ -30,6 +31,15 @@ class DataForSEO:
         self.login = login or os.getenv('DATAFORSEO_LOGIN')
         self.password = password or os.getenv('DATAFORSEO_PASSWORD')
         self.base_url = os.getenv('DATAFORSEO_BASE_URL', 'https://api.dataforseo.com')
+
+        # Validate base URL against trusted hosts
+        _allowed_hosts = {'api.dataforseo.com', 'sandbox.dataforseo.com'}
+        _parsed = urlparse(self.base_url)
+        if _parsed.hostname not in _allowed_hosts:
+            raise ValueError(
+                f"Untrusted DataForSEO API host: {_parsed.hostname}. "
+                f"Allowed: {', '.join(_allowed_hosts)}"
+            )
 
         if not self.login or not self.password:
             raise ValueError("DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD must be set")

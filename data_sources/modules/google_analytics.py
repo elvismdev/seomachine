@@ -50,15 +50,19 @@ class GoogleAnalytics:
         self,
         days: int = 30,
         limit: int = 20,
-        path_filter: Optional[str] = "/blog/"
+        path_filter: Optional[str] = "/blog/",
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Get top performing pages by pageviews
 
         Args:
-            days: Number of days to look back
+            days: Number of days to look back (ignored if start_date/end_date set)
             limit: Number of results to return
             path_filter: Filter pages by path (e.g., "/blog/")
+            start_date: Explicit start date (GA4 format: "NdaysAgo" or "YYYY-MM-DD")
+            end_date: Explicit end date (GA4 format: "NdaysAgo", "today", or "YYYY-MM-DD")
 
         Returns:
             List of dicts with page data
@@ -66,8 +70,8 @@ class GoogleAnalytics:
         request = RunReportRequest(
             property=f"properties/{self.property_id}",
             date_ranges=[DateRange(
-                start_date=f"{days}daysAgo",
-                end_date="today"
+                start_date=start_date or f"{days}daysAgo",
+                end_date=end_date or "today"
             )],
             dimensions=[
                 Dimension(name="pagePath"),
@@ -99,7 +103,7 @@ class GoogleAnalytics:
                 )
             )
 
-        response = self.client.run_report(request)
+        response = self.client.run_report(request, timeout=60)
 
         results = []
         for row in response.rows:
@@ -125,7 +129,7 @@ class GoogleAnalytics:
         Get traffic trends for a specific page
 
         Args:
-            url: Page path (e.g., "/blog/podcast-monetization")
+            url: Page path (e.g., "/blog/content-monetization")
             days: Number of days to analyze
             granularity: "day" or "week"
 
@@ -161,7 +165,7 @@ class GoogleAnalytics:
             }]
         )
 
-        response = self.client.run_report(request)
+        response = self.client.run_report(request, timeout=60)
 
         timeline = []
         for row in response.rows:
@@ -242,7 +246,7 @@ class GoogleAnalytics:
                 )
             )
 
-        response = self.client.run_report(request)
+        response = self.client.run_report(request, timeout=60)
 
         results = []
         for row in response.rows:
@@ -306,7 +310,7 @@ class GoogleAnalytics:
                 )
             )
 
-        response = self.client.run_report(request)
+        response = self.client.run_report(request, timeout=60)
 
         results = []
         for row in response.rows:
@@ -336,18 +340,19 @@ class GoogleAnalytics:
         Returns:
             List of declining pages with metrics
         """
-        # Get recent period data
+        # Get recent period data (last N days)
         recent_pages = self.get_top_pages(
             days=comparison_days,
             limit=100,
             path_filter=path_filter
         )
 
-        # Get previous period data
+        # Get previous period data (N days before that -- non-overlapping)
         previous_pages = self.get_top_pages(
-            days=comparison_days * 2,
             limit=100,
-            path_filter=path_filter
+            path_filter=path_filter,
+            start_date=f"{comparison_days * 2}daysAgo",
+            end_date=f"{comparison_days}daysAgo"
         )
 
         # Create lookup for previous data

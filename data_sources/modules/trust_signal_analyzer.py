@@ -12,6 +12,11 @@ Analyzes trust signals in landing page content:
 import re
 from typing import Dict, List, Any
 
+try:
+    from ._scoring import get_grade as _shared_get_grade
+except ImportError:
+    from _scoring import get_grade as _shared_get_grade
+
 
 class TrustSignalAnalyzer:
     """Analyzes trust signals in landing pages"""
@@ -36,10 +41,10 @@ class TrustSignalAnalyzer:
     # Customer count / social proof patterns
     SOCIAL_PROOF_PATTERNS = {
         'customer_count': [
-            r'(\d{1,3}(?:,\d{3})*\+?)\s*(?:podcasters?|customers?|users?|creators?|businesses?|shows?)',
+            r'(\d{1,3}(?:,\d{3})*\+?)\s*(?:customers?|users?|creators?|businesses?|subscribers?)',
             r'(?:trusted|used|loved)\s+by\s+(\d{1,3}(?:,\d{3})*\+?)',
-            r'(?:join|over)\s+(\d{1,3}(?:,\d{3})*\+?)\s*(?:podcasters?|customers?)',
-            r'(\d+(?:\.\d+)?[KMBkmb])\+?\s*(?:podcasters?|downloads?|users?)',
+            r'(?:join|over)\s+(\d{1,3}(?:,\d{3})*\+?)\s*(?:customers?|users?)',
+            r'(\d+(?:\.\d+)?[KMBkmb])\+?\s*(?:customers?|downloads?|users?)',
         ],
         'specific_results': [
             r'(\d+%)\s+(?:increase|decrease|growth|improvement|more|less|higher|lower)',
@@ -387,16 +392,7 @@ class TrustSignalAnalyzer:
 
     def _get_grade(self, score: int) -> str:
         """Convert score to letter grade"""
-        if score >= 90:
-            return "A (Excellent)"
-        elif score >= 80:
-            return "B (Good)"
-        elif score >= 70:
-            return "C (Average)"
-        elif score >= 60:
-            return "D (Needs Work)"
-        else:
-            return "F (Poor)"
+        return _shared_get_grade(score)
 
     def _generate_recommendations(self, results: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Generate prioritized recommendations"""

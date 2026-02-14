@@ -26,18 +26,20 @@ from modules.opportunity_scorer import OpportunityScorer, OpportunityType
 from modules.search_intent_analyzer import SearchIntentAnalyzer
 
 
-def load_competitors():
-    """Load competitor lists from config file."""
-    config_path = os.path.join(os.path.dirname(__file__), 'config', 'competitors.json')
-    if os.path.exists(config_path):
-        with open(config_path) as f:
-            config = json.load(f)
-        return config.get('direct_competitors', []), config.get('content_competitors', [])
-    print("WARNING: config/competitors.json not found. See config/competitors.example.json")
-    return [], []
+_config_cache = None
 
 
-DIRECT_COMPETITORS, CONTENT_COMPETITORS = load_competitors()
+def _get_config():
+    """Load and cache competitors config."""
+    global _config_cache
+    if _config_cache is None:
+        config_path = os.path.join(os.path.dirname(__file__), 'config', 'competitors.json')
+        if os.path.exists(config_path):
+            with open(config_path, encoding='utf-8') as f:
+                _config_cache = json.load(f)
+        else:
+            _config_cache = {}
+    return _config_cache
 
 
 def main():
@@ -79,14 +81,14 @@ def main():
     print(f"   ✓ Found {len(our_keyword_set)} keywords you're ranking for")
 
     # Analyze competitors
-    all_competitors = DIRECT_COMPETITORS + CONTENT_COMPETITORS
+    all_competitors = _get_config().get('direct_competitors', []) + _get_config().get('content_competitors', [])
     print(f"\n3. Analyzing {len(all_competitors)} competitors...")
 
     competitor_gaps = []
     seen_keywords = set()  # To deduplicate
 
     for i, competitor in enumerate(all_competitors, 1):
-        comp_type = "Direct" if competitor in DIRECT_COMPETITORS else "Content"
+        comp_type = "Direct" if competitor in _get_config().get('direct_competitors', []) else "Content"
         print(f"\n   [{i}/{len(all_competitors)}] Analyzing {competitor} ({comp_type})...")
 
         try:
@@ -264,7 +266,7 @@ def is_branded_keyword(keyword: str, domain: str) -> bool:
 
     # Known branded terms (derived from competitor domains)
     branded_terms = {}
-    for comp in DIRECT_COMPETITORS + CONTENT_COMPETITORS:
+    for comp in _get_config().get('direct_competitors', []) + _get_config().get('content_competitors', []):
         domain_part = comp.split('.')[0]
         branded_terms[domain_part] = [domain_part]
 
@@ -286,16 +288,10 @@ def is_relevant_keyword(keyword: str) -> bool:
         return False
 
     # Industry-relevant terms - customize for your niche
-    # Load from config if available, otherwise accept all keywords
-    config_path = os.path.join(os.path.dirname(__file__), 'config', 'competitors.json')
-    if os.path.exists(config_path):
-        with open(config_path) as f:
-            config = json.load(f)
-        relevant_terms = config.get('relevant_terms', [])
-        if not relevant_terms:
-            return True  # No filter configured, accept all
-    else:
-        return True  # No config, accept all
+    config = _get_config()
+    relevant_terms = config.get('relevant_terms', [])
+    if not relevant_terms:
+        return True  # No filter configured, accept all
 
     relevant_terms = [t.lower() for t in relevant_terms]
 

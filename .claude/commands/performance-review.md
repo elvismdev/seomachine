@@ -91,9 +91,9 @@ pip install -r data_sources/requirements.txt
 
 ### 3. Test Data Connections
 ```bash
-python data_sources/modules/google_analytics.py
-python data_sources/modules/google_search_console.py
-python data_sources/modules/dataforseo.py
+python3 data_sources/modules/google_analytics.py
+python3 data_sources/modules/google_search_console.py
+python3 data_sources/modules/dataforseo.py
 ```
 
 ## Output
@@ -121,7 +121,7 @@ Key Trends:
 ```
 🔥 URGENT (Do This Week)
 
-1. Optimize for "podcast analytics dashboard"
+1. Optimize for "analytics dashboard comparison"
    Type: Quick Win
    Current Position: 12
    Monthly Impressions: 5,400
@@ -159,16 +159,16 @@ The Performance Agent output directly informs other commands:
 
 **From Performance Review → Next Actions**:
 
-1. **Quick Win Identified**: "podcast monetization" at position 13
+1. **Quick Win Identified**: "content monetization" at position 13
    ```
-   /analyze-existing /blog/podcast-monetization-guide
-   /optimize drafts/podcast-monetization-guide.md
+   /analyze-existing /blog/content-monetization-guide
+   /optimize drafts/content-monetization-guide.md
    ```
 
 2. **Declining Content**: Article lost 35% traffic
    ```
-   /analyze-existing /blog/podcast-equipment-guide
-   /rewrite podcast equipment guide
+   /analyze-existing /blog/equipment-guide
+   /rewrite equipment guide
    ```
 
 3. **Low CTR**: High impressions, 2.5% CTR
@@ -177,16 +177,16 @@ The Performance Agent output directly informs other commands:
    # Update meta title and description manually or via CMS
    ```
 
-4. **Trending Topic**: "AI podcast tools" +150% growth
+4. **Trending Topic**: "AI content tools" +150% growth
    ```
-   /research AI podcast tools
-   /write AI podcast tools
+   /research AI content tools
+   /write AI content tools
    ```
 
 5. **Competitor Gap**: competitor.com ranks #3, your company not ranking
    ```
-   /research podcast editing workflow
-   /write podcast editing workflow
+   /research content editing workflow
+   /write content editing workflow
    ```
 
 ## Frequency Recommendations

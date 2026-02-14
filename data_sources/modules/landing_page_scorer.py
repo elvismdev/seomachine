@@ -15,6 +15,11 @@ Categories (weights):
 import re
 from typing import Dict, List, Optional, Any
 
+try:
+    from ._scoring import get_grade as _shared_get_grade
+except ImportError:
+    from _scoring import get_grade as _shared_get_grade
+
 
 class LandingPageScorer:
     """Scores landing pages against CRO best practices"""
@@ -58,7 +63,7 @@ class LandingPageScorer:
             r'(?:download|get)\s+(?:the\s+)?(?:free\s+)?(?:guide|ebook|checklist|template)',
             r'get\s+(?:your\s+)?(?:free\s+)?(?:copy|access)',
             r'(?:subscribe|sign\s+up)\s+(?:for\s+)?(?:our\s+)?(?:newsletter|updates)',
-            r'join\s+(?:\d+[,\d]*\+?\s+)?(?:podcasters?|creators?|people)',
+            r'join\s+(?:\d+[,\d]*\+?\s+)?(?:customers?|creators?|people)',
         ]
     }
 
@@ -88,8 +93,8 @@ class LandingPageScorer:
             r'\*\*[A-Z][a-z]+\s+[A-Z]\.\*\*',  # **Name L.**
         ],
         'customer_count': [
-            r'\d{1,3}(?:,\d{3})*\+?\s+(?:podcasters?|customers?|users?|creators?|businesses?)',
-            r'(?:thousands|millions)\s+of\s+(?:podcasters?|customers?|users?)',
+            r'\d{1,3}(?:,\d{3})*\+?\s+(?:customers?|users?|creators?|businesses?|subscribers?)',
+            r'(?:thousands|millions)\s+of\s+(?:customers?|users?|subscribers?)',
             r'trusted\s+by\s+\d+',
         ],
         'specific_results': [
@@ -133,7 +138,10 @@ class LandingPageScorer:
     def __init__(
         self,
         page_type: str = 'seo',
-        conversion_goal: str = 'trial'
+        conversion_goal: str = 'trial',
+        above_fold_analyzer=None,
+        cta_analyzer=None,
+        trust_signal_analyzer=None,
     ):
         """
         Initialize Landing Page Scorer
@@ -141,10 +149,17 @@ class LandingPageScorer:
         Args:
             page_type: 'seo' or 'ppc'
             conversion_goal: 'trial', 'demo', or 'lead'
+            above_fold_analyzer: Optional AboveFoldAnalyzer instance (composable)
+            cta_analyzer: Optional CTAAnalyzer instance (composable)
+            trust_signal_analyzer: Optional TrustSignalAnalyzer instance (composable)
         """
         self.page_type = page_type
         self.conversion_goal = conversion_goal
         self.config = self.PAGE_CONFIGS.get(page_type, self.PAGE_CONFIGS['seo'])
+        # Optional composition with standalone analyzers
+        self._above_fold_analyzer = above_fold_analyzer
+        self._cta_analyzer = cta_analyzer
+        self._trust_signal_analyzer = trust_signal_analyzer
 
     def score(
         self,
@@ -657,16 +672,7 @@ class LandingPageScorer:
 
     def _get_grade(self, score: float) -> str:
         """Convert score to letter grade"""
-        if score >= 90:
-            return "A (Excellent)"
-        elif score >= 80:
-            return "B (Good)"
-        elif score >= 70:
-            return "C (Average)"
-        elif score >= 60:
-            return "D (Needs Work)"
-        else:
-            return "F (Poor)"
+        return _shared_get_grade(score)
 
 
 # Convenience function

@@ -279,8 +279,10 @@ class OpportunityScorer:
         clicks: int
     ) -> float:
         """Score based on CTR improvement potential (0-100)"""
-        if position > 20 or position < 1:
-            return 50  # Default if position out of range
+        if position < 1:
+            return 70  # Not ranking yet -- high CTR improvement potential
+        if position > 20:
+            return 50  # Ranking but outside top 20
 
         # Get expected CTR for this position
         pos_int = int(round(position))

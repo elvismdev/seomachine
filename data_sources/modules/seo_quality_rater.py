@@ -8,6 +8,11 @@ Provides scoring (0-100) and specific recommendations for improvement.
 import re
 from typing import Dict, List, Optional, Any, Tuple
 
+try:
+    from ._scoring import get_grade as _shared_get_grade
+except ImportError:
+    from _scoring import get_grade as _shared_get_grade
+
 
 class SEOQualityRater:
     """Rates content against SEO best practices"""
@@ -538,16 +543,7 @@ class SEOQualityRater:
 
     def _get_grade(self, score: float) -> str:
         """Convert score to letter grade"""
-        if score >= 90:
-            return "A (Excellent)"
-        elif score >= 80:
-            return "B (Good)"
-        elif score >= 70:
-            return "C (Average)"
-        elif score >= 60:
-            return "D (Needs Work)"
-        else:
-            return "F (Poor)"
+        return _shared_get_grade(score)
 
 
 # Convenience function

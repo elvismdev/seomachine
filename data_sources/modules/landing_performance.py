@@ -12,7 +12,10 @@ Metrics tracked:
 """
 
 import os
+import logging
 from typing import Dict, List, Any, Optional
+
+logger = logging.getLogger(__name__)
 from datetime import datetime, timedelta
 
 # Try to import GA4 module (may not be available in all environments)
@@ -68,14 +71,14 @@ class LandingPagePerformance:
         if GA4_AVAILABLE:
             try:
                 self.ga4 = GoogleAnalytics()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("GA4 init failed, metrics will be unavailable: %s", e)
 
         if GSC_AVAILABLE:
             try:
                 self.gsc = GoogleSearchConsole()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("GSC init failed, SEO metrics will be unavailable: %s", e)
 
     def get_landing_page_performance(
         self,

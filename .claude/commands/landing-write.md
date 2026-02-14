@@ -25,8 +25,7 @@ Use this command to create high-converting landing pages optimized for either or
 ## Pre-Writing Review
 
 **Required Context:**
-- **Landing Page Templates**: @context/landing-page-templates.md for structure
-- **CRO Best Practices**: @context/cro-best-practices.md for conversion guidelines
+- **CRO Best Practices**: @context/cro-best-practices.md for structure and conversion guidelines
 - **Brand Voice**: @context/brand-voice.md for tone and messaging
 
 **If Research Brief Available:**
@@ -322,7 +321,7 @@ This removes AI watermarks and characteristic patterns.
 After scrubbing, score the landing page using:
 
 ```bash
-python data_sources/modules/landing_page_scorer.py landing-pages/[filename].md --type [seo|ppc] --goal [trial|demo|lead]
+python3 data_sources/modules/landing_page_scorer.py landing-pages/[filename].md --type [seo|ppc] --goal [trial|demo|lead]
 ```
 
 Or run via the landing-page-optimizer agent.
