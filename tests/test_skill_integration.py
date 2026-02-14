@@ -614,8 +614,6 @@ CRITICAL_IMPORTS = [
     ("bs4", "beautifulsoup4"),
     ("markdown", "markdown"),
     ("sklearn", "scikit-learn"),
-    ("numpy", "numpy"),
-    ("pandas", "pandas"),
 ]
 
 
